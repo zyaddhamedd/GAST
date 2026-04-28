@@ -87,11 +87,11 @@ export function HeroSlider() {
       ))}
 
       {/* Content Container */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex flex-col justify-center h-full">
+      <div className="relative z-20 w-full max-w-7xl mx-auto h-full flex flex-col justify-center">
         {slides.map((slide, index) => (
           <div
             key={`content-${slide.id}`}
-            className={`absolute w-full px-6 md:px-0 max-w-3xl transition-all duration-1000 ease-out flex flex-col items-center md:items-start text-center md:text-right ${
+            className={`absolute inset-x-0 mx-auto px-6 md:px-0 md:max-w-3xl transition-all duration-1000 ease-out flex flex-col items-center md:items-start text-center md:text-right ${
               index === current
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-8 pointer-events-none"
