@@ -9,6 +9,8 @@ import {
   Plus, Minus, CheckCircle2, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useCartStore } from "@/store/useCartStore";
+import toast from "react-hot-toast";
 
 // Mock Product Data
 const productInfo = {
@@ -55,7 +57,10 @@ const relatedProducts = [
 ];
 
 export default function ProductDetailsPage() {
-  const { id } = useParams(); // Can use ID to fetch real data
+  const { id } = useParams();
+  const addItem = useCartStore((state) => state.addItem);
+  const updateQuantityStore = useCartStore((state) => state.updateQuantity);
+  const cartItems = useCartStore((state) => state.items);
   
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -102,6 +107,26 @@ export default function ProductDetailsPage() {
 
   const handleMouseLeave = () => {
     setZoomStyle({ display: 'none', backgroundPosition: '0% 0%' });
+  };
+
+  const handleAddToCart = () => {
+    addItem({
+      id: productInfo.id,
+      name: productInfo.name,
+      price: productInfo.price,
+      image: productInfo.images[0],
+    }, quantity);
+
+    toast.success(`تم إضافة ${quantity} من ${productInfo.name} إلى السلة`, {
+      style: {
+        borderRadius: '12px',
+        background: '#002b5c',
+        color: '#fff',
+        fontFamily: 'inherit',
+        fontSize: '14px',
+        fontWeight: 'bold',
+      },
+    });
   };
 
   return (
@@ -252,7 +277,10 @@ export default function ProductDetailsPage() {
                   </div>
                   
                   {/* Primary Button */}
-                  <button className="flex-1 bg-[#ff6a00] hover:bg-[#e65c00] text-white h-14 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all shadow-lg shadow-[#ff6a00]/30 hover:shadow-[#ff6a00]/50 hover:-translate-y-1">
+                  <button 
+                    onClick={handleAddToCart}
+                    className="flex-1 bg-[#ff6a00] hover:bg-[#e65c00] text-white h-14 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all shadow-lg shadow-[#ff6a00]/30 hover:shadow-[#ff6a00]/50 hover:-translate-y-1"
+                  >
                     <ShoppingCart className="w-6 h-6" />
                     أضف للسلة
                   </button>
@@ -405,7 +433,10 @@ export default function ProductDetailsPage() {
                 <Plus className="w-4 h-4" />
               </button>
             </div>
-            <button className="flex-1 md:w-48 bg-[#ff6a00] hover:bg-[#e65c00] text-white h-12 rounded-lg font-bold text-base flex items-center justify-center gap-2 transition-all shadow-md shadow-[#ff6a00]/20">
+            <button 
+              onClick={handleAddToCart}
+              className="flex-1 md:w-48 bg-[#ff6a00] hover:bg-[#e65c00] text-white h-12 rounded-lg font-bold text-base flex items-center justify-center gap-2 transition-all shadow-md shadow-[#ff6a00]/20"
+            >
               <ShoppingCart className="w-5 h-5" />
               أضف للسلة
             </button>

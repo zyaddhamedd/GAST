@@ -120,19 +120,6 @@ function ShopContent() {
 
   return (
     <div className="min-h-screen bg-[#f9fafb] pb-24" dir="rtl">
-      {/* Top Banner */}
-      <div className="bg-brand-blue py-5 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl sm:text-2xl font-bold text-white">المتجر</h1>
-            <div className="hidden sm:block h-5 w-px bg-white/20"></div>
-            <p className="hidden md:block text-gray-300 text-sm font-medium">
-              أفضل المضخات والمعدات الصناعية
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Categories Top Section (Horizontal Scroll on Mobile) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 md:mt-8 mb-8 md:mb-10">

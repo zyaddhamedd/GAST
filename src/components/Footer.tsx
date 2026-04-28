@@ -10,14 +10,14 @@ export function Footer() {
           {/* Logo & Info */}
           <div className="flex flex-col items-start col-span-1">
             <Link href="/" className="flex flex-col items-start mb-6">
-              <span className="text-white text-3xl font-black tracking-widest leading-none font-serif uppercase">HOLMEN</span>
+              <span className="text-white text-3xl font-black tracking-widest leading-none font-serif uppercase">GAST</span>
               <span className="text-white text-[10px] font-bold tracking-widest mt-1 uppercase">Made in Germany</span>
             </Link>
             <h3 className="text-3xl font-bold mb-4 leading-snug">
               تكنولوجيا ألمانية<br />تُحرّك المياه بثقة
             </h3>
             <p className="text-sm text-gray-300 font-medium mt-4">
-              تمنح هولمن ضماناً حقيقياً لمدة 5 سنوات
+              تمنح GAST ضماناً حقيقياً لمدة 5 سنوات
             </p>
             
             <div className="flex items-center gap-4 mt-8">
@@ -73,27 +73,27 @@ export function Footer() {
             <ul className="space-y-4 text-sm text-gray-300">
               <li className="flex items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">مضخات رفع مياه هولمن</Link>
+                <Link href="/" className="hover:text-white transition-colors">مضخات رفع مياه GAST</Link>
               </li>
               <li className="flex items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">غواطس مياه هولمن</Link>
+                <Link href="/" className="hover:text-white transition-colors">غواطس مياه GAST</Link>
               </li>
               <li className="flex items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">غواطس مياه اعماق هولمن</Link>
+                <Link href="/" className="hover:text-white transition-colors">غواطس مياه اعماق GAST</Link>
               </li>
               <li className="flex items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">غواطس مياه ظهر & استالس هولمن</Link>
+                <Link href="/" className="hover:text-white transition-colors">غواطس مياه ظهر & استالس GAST</Link>
               </li>
               <li className="flex items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">غواطس مياه ظهر بالكامل هولمن</Link>
+                <Link href="/" className="hover:text-white transition-colors">غواطس مياه ظهر بالكامل GAST</Link>
               </li>
               <li className="flex items-center gap-2 pb-3">
                 <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">غواطس مياه استالس بالكامل هولمن</Link>
+                <Link href="/" className="hover:text-white transition-colors">غواطس مياه استالس بالكامل GAST</Link>
               </li>
             </ul>
           </div>
@@ -108,7 +108,7 @@ export function Footer() {
             <Link href="/" className="hover:text-white transition-colors">سياسة الشحن والاسترجاع</Link>
           </div>
           <div>
-            HOLMEN 2026 ©
+            GAST 2026 ©
           </div>
         </div>
       </div>

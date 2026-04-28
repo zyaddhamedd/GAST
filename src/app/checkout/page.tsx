@@ -4,8 +4,14 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheck, Truck, Banknote, ChevronRight, Lock } from "lucide-react";
+import { useCartStore } from "@/store/useCartStore";
+import { useRouter } from "next/navigation";
 
 export default function CheckoutPage() {
+  const router = useRouter();
+  const { items, getTotalPrice, clearCart } = useCartStore();
+  const [mounted, setMounted] = useState(false);
+  
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -17,6 +23,10 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("cod"); // cod or bank
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Focus the first input on load
   useEffect(() => {
@@ -57,7 +67,9 @@ export default function CheckoutPage() {
       // Simulate API call
       setTimeout(() => {
         alert("تم تأكيد طلبك بنجاح! شكراً لثقتك في GAST.");
+        clearCart();
         setIsSubmitting(false);
+        router.push("/");
       }, 1500);
     } else {
       // Scroll to first error
@@ -65,18 +77,20 @@ export default function CheckoutPage() {
     }
   };
 
-  const mockCartItems = [
-    {
-      id: 1,
-      name: "مضخة مياه غاطسة 1.5 حصان هولمن",
-      price: 4500,
-      quantity: 1,
-      image: "/assets/cat5.png"
-    }
-  ];
+  if (!mounted) return null;
 
-  const subtotal = mockCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = 50;
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 text-center" dir="rtl">
+        <h1 className="text-2xl font-bold text-brand-blue mb-4">سلة المشتريات فارغة</h1>
+        <p className="text-gray-500 mb-8">لا يمكنك إتمام الطلب بدون منتجات في السلة.</p>
+        <Link href="/shop" className="bg-brand-blue text-white px-8 py-3 rounded-xl font-bold">العودة للمتجر</Link>
+      </div>
+    );
+  }
+
+  const subtotal = getTotalPrice();
+  const shipping = subtotal > 5000 ? 0 : 50;
   const total = subtotal + shipping;
 
   return (
@@ -257,7 +271,7 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-bold text-brand-blue mb-6">ملخص الطلب</h2>
               
               <div className="space-y-4 mb-6">
-                {mockCartItems.map((item) => (
+                {items.map((item) => (
                   <div key={item.id} className="flex items-center gap-4 py-4 border-b border-gray-100">
                     <div className="relative w-16 h-16 bg-gray-50 rounded-lg overflow-hidden border border-gray-200 shrink-0">
                       <Image src={item.image} alt={item.name} fill className="object-contain p-1" />
@@ -267,7 +281,7 @@ export default function CheckoutPage() {
                       <p className="text-xs text-gray-500">الكمية: {item.quantity}</p>
                     </div>
                     <div className="font-bold text-brand-blue shrink-0">
-                      {(item.price * item.quantity).toLocaleString("ar-EG")} ج.م
+                      {(item.price * item.quantity).toLocaleString()} ج.م
                     </div>
                   </div>
                 ))}
@@ -276,17 +290,17 @@ export default function CheckoutPage() {
               <div className="space-y-3 text-sm mb-6 border-b border-gray-100 pb-6">
                 <div className="flex justify-between text-gray-600">
                   <span>المجموع الفرعي</span>
-                  <span className="font-medium text-brand-blue">{subtotal.toLocaleString("ar-EG")} ج.م</span>
+                  <span className="font-medium text-brand-blue">{subtotal.toLocaleString()} ج.م</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>تكلفة الشحن</span>
-                  <span className="font-medium text-brand-blue">{shipping.toLocaleString("ar-EG")} ج.م</span>
+                  <span className="font-medium text-brand-blue">{shipping === 0 ? "مجاني" : `${shipping} ج.م`}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-center mb-8">
                 <span className="text-lg font-bold text-brand-blue">الإجمالي</span>
-                <span className="text-3xl font-black text-[#ff6a00]">{total.toLocaleString("ar-EG")} <span className="text-lg font-bold text-gray-500">ج.م</span></span>
+                <span className="text-3xl font-black text-[#ff6a00]">{total.toLocaleString()} <span className="text-lg font-bold text-gray-500">ج.م</span></span>
               </div>
 
               <button 

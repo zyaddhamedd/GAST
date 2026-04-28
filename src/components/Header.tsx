@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, User, ShoppingBag, Menu, X } from "lucide-react";
 import { StoreDropdown } from "./StoreDropdown";
+import { useCartStore } from "@/store/useCartStore";
+import { MiniCart } from "./MiniCart";
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMiniCartOpen, setIsMiniCartOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { getTotalItems, getTotalPrice } = useCartStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="w-full flex flex-col relative z-50">
@@ -53,7 +62,6 @@ export function Header() {
             </Link>
           </div>
 
-          {/* Left: Icons & Cart */}
           <div className="flex items-center gap-4 md:gap-6">
             <button className="hidden text-gray-900 hover:text-brand-blue transition-colors">
               <Search className="w-5 h-5" />
@@ -61,12 +69,30 @@ export function Header() {
             <button className="hidden md:block text-gray-900 hover:text-brand-blue transition-colors">
               <User className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2 md:gap-3">
-              <span className="hidden lg:block text-sm font-extrabold text-gray-900">سلة المشتريات / 0 EGP</span>
-              <div className="relative">
-                <ShoppingBag className="w-5 h-5 md:w-6 md:h-6 text-gray-900" />
-                <span className="absolute -top-1 -right-1 bg-brand-blue text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full shadow-sm">0</span>
-              </div>
+            <div className="relative">
+              <button 
+                onClick={() => setIsMiniCartOpen(!isMiniCartOpen)}
+                className="flex items-center gap-2 md:gap-3 group focus:outline-none active:scale-95 transition-transform"
+              >
+                <span className="hidden lg:block text-sm font-extrabold text-gray-900 group-hover:text-brand-blue transition-colors">
+                  سلة المشتريات / {mounted ? getTotalPrice().toLocaleString() : 0} EGP
+                </span>
+                <div className="relative">
+                  <ShoppingBag className="w-5 h-5 md:w-6 md:h-6 text-gray-900 group-hover:text-brand-blue transition-colors" />
+                  {mounted && getTotalItems() > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-brand-blue text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full shadow-sm animate-in zoom-in duration-300">
+                      {getTotalItems()}
+                    </span>
+                  )}
+                  {!mounted && (
+                    <span className="absolute -top-1 -right-1 bg-brand-blue text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full shadow-sm">
+                      0
+                    </span>
+                  )}
+                </div>
+              </button>
+              
+              <MiniCart isOpen={isMiniCartOpen} onClose={() => setIsMiniCartOpen(false)} />
             </div>
           </div>
         </div>

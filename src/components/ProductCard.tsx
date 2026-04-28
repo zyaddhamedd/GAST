@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Star, StarHalf } from "lucide-react";
+import { ShoppingCart, Star } from "lucide-react";
+import { useCartStore } from "@/store/useCartStore";
+import toast from "react-hot-toast";
 
 export interface Product {
   id: string | number;
@@ -22,6 +24,31 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const addItem = useCartStore((state) => state.addItem);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    addItem({
+      id: product.id.toString(),
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    });
+    
+    toast.success(`تم إضافة ${product.name} إلى السلة`, {
+      style: {
+        borderRadius: '12px',
+        background: '#002b5c',
+        color: '#fff',
+        fontFamily: 'inherit',
+        fontSize: '14px',
+        fontWeight: 'bold',
+      },
+    });
+  };
+
   return (
     <div className="group relative bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full">
       {/* Discount Badge */}
@@ -113,9 +140,10 @@ export function ProductCard({ product }: ProductCardProps) {
         <button 
           className="w-full flex items-center justify-center gap-1 bg-[#ff6a00] active:scale-95 hover:bg-[#e65c00] text-white py-1.5 md:py-3 rounded-md md:rounded-lg font-bold transition-colors shadow-lg shadow-[#ff6a00]/30 disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={!product.inStock}
+          onClick={handleAddToCart}
         >
           <ShoppingCart className="w-3 h-3 md:w-5 md:h-5" />
-          <span className="text-[8px] md:text-base">{product.inStock ? "أضف" : "نفذ"}</span>
+          <span className="text-[8px] md:text-base">{product.inStock ? "أضف للسلة" : "نفذ"}</span>
         </button>
       </div>
     </div>
