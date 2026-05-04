@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import { 
   MapPin, 
   Phone, 
@@ -28,11 +28,27 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    setFormData({ name: "", phone: "", email: "", message: "" });
+
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error ?? "حدث خطأ أثناء الإرسال، حاول مرة أخرى.");
+        return;
+      }
+
+      setIsSubmitted(true);
+      setFormData({ name: "", phone: "", email: "", message: "" });
+    } catch {
+      alert("تعذّر الاتصال بالخادم، تحقق من الاتصال بالإنترنت.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -40,7 +56,8 @@ export default function ContactPage() {
       {/* Hero Section */}
       <section className="relative h-[35vh] md:h-[45vh] min-h-[300px] md:min-h-[350px] w-full flex items-center justify-center overflow-hidden bg-brand-blue">
         <div className="absolute inset-0 opacity-20">
-           <Image src="/assets/هيرو1.png" alt="Contact Bg" fill className="object-cover blur-sm" />
+           <SafeImage src="/assets/هيرو1.webp" alt="Contact Bg" fill className="object-cover blur-sm" />
+
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-brand-blue/80 to-brand-blue"></div>
         <div className="relative z-10 text-center px-4 animate-fade-in max-w-4xl mx-auto">

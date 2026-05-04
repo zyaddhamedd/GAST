@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import { ChevronDown, HelpCircle, Settings, ShieldCheck, ShoppingCart, Wrench } from "lucide-react";
 
 const faqData = [
@@ -84,13 +84,14 @@ export default function FAQPage() {
     <div className="min-h-screen bg-white" dir="rtl">
       {/* Hero Section */}
       <section className="relative h-[35vh] md:h-[45vh] min-h-[300px] md:min-h-[350px] w-full flex items-center justify-center overflow-hidden">
-        <Image 
-          src="/assets/اسئله شائعه.png" 
+        <SafeImage 
+          src="/assets/اسئله شائعه.webp" 
           alt="FAQ Banner" 
           fill 
           className="object-cover"
           priority
         />
+
         <div className="absolute inset-0 bg-brand-blue/30 backdrop-blur-[2px]"></div>
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <h1 className="text-3xl md:text-7xl font-extrabold text-white mb-4 md:mb-6 drop-shadow-2xl">

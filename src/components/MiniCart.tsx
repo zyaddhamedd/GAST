@@ -3,8 +3,9 @@
 import { useCartStore } from "@/store/useCartStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingBag, Trash2, ArrowRight, ShoppingCart } from "lucide-react";
-import Image from "next/image";
+import SafeImage from "./SafeImage";
 import Link from "next/link";
+import { normalizeImagePath } from "@/lib/utils";
 import { useEffect, useRef } from "react";
 
 interface MiniCartProps {
@@ -13,7 +14,13 @@ interface MiniCartProps {
 }
 
 export function MiniCart({ isOpen, onClose }: MiniCartProps) {
-  const { items, removeItem, getTotalPrice, getTotalItems, updateQuantity } = useCartStore();
+  // Optimized selectors
+  const items = useCartStore((state) => state.items);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const totalItems = useCartStore((state) => state.totalItems);
+  const totalPrice = useCartStore((state) => state.totalPrice);
+
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   // Close on click outside
@@ -42,8 +49,6 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
-
-  const subtotal = getTotalPrice();
 
   return (
     <AnimatePresence>
@@ -76,7 +81,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
                 </div>
                 <div>
                   <h3 className="text-xl md:text-2xl font-black text-brand-blue">سلة التسوق</h3>
-                  <p className="text-sm text-gray-400 font-bold">لديك {getTotalItems()} منتجات</p>
+                  <p className="text-sm text-gray-400 font-bold">لديك {totalItems} منتجات</p>
                 </div>
               </div>
               <button 
@@ -101,12 +106,14 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
                     >
                       {/* Product Image Container */}
                       <div className="relative w-24 h-24 md:w-28 md:h-28 bg-[#f9fafb] rounded-3xl overflow-hidden shrink-0 border border-gray-100 group-hover:border-brand-blue/20 transition-colors">
-                        <Image 
-                          src={item.image} 
+                        <SafeImage 
+                          src={normalizeImagePath(item.image)} 
                           alt={item.name} 
                           fill 
-                          className="object-contain p-3 transition-transform duration-700 group-hover:scale-110" 
+                          className="object-contain p-3 transition-transform duration-700 group-hover:scale-110"
+                          sizes="112px"
                         />
+
                       </div>
 
                       {/* Product Details Area */}
@@ -173,16 +180,16 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
                 <div className="space-y-4 mb-8">
                   <div className="flex justify-between items-center text-gray-400 font-bold">
                     <span>المجموع الفرعي</span>
-                    <span className="text-brand-blue">{(subtotal * 0.86).toLocaleString()} ج.م</span>
+                    <span className="text-brand-blue">{(totalPrice * 0.86).toLocaleString()} ج.م</span>
                   </div>
                   <div className="flex justify-between items-center text-gray-400 font-bold">
                     <span>ضريبة القيمة المضافة (14%)</span>
-                    <span className="text-brand-blue">{(subtotal * 0.14).toLocaleString()} ج.م</span>
+                    <span className="text-brand-blue">{(totalPrice * 0.14).toLocaleString()} ج.م</span>
                   </div>
                   <div className="flex justify-between items-end pt-4 border-t border-gray-50">
                     <span className="text-xl font-bold text-brand-blue">الإجمالي الكلي</span>
                     <div className="text-left">
-                      <span className="text-3xl font-black text-[#ff6a00]">{subtotal.toLocaleString()}</span>
+                      <span className="text-3xl font-black text-[#ff6a00]">{totalPrice.toLocaleString()}</span>
                       <span className="text-sm font-bold text-[#ff6a00] mr-1">ج.م</span>
                     </div>
                   </div>

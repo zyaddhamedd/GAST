@@ -11,40 +11,48 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[];
+  totalItems: number;
+  totalPrice: number;
   addItem: (product: Omit<CartItem, 'quantity'>, quantity?: number) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
-  getTotalItems: () => number;
-  getTotalPrice: () => number;
 }
+
+const calculateTotals = (items: CartItem[]) => {
+  const totalItems = items.reduce((total, item) => total + item.quantity, 0);
+  const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0);
+  return { totalItems, totalPrice };
+};
 
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      totalItems: 0,
+      totalPrice: 0,
       
       addItem: (product, quantity = 1) => {
         const currentItems = get().items;
         const existingItem = currentItems.find((item) => item.id === product.id);
         
+        let newItems;
         if (existingItem) {
-          set({
-            items: currentItems.map((item) =>
-              item.id === product.id
-                ? { ...item, quantity: item.quantity + quantity }
-                : item
-            ),
-          });
+          newItems = currentItems.map((item) =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          );
         } else {
-          set({ items: [...currentItems, { ...product, quantity }] });
+          newItems = [...currentItems, { ...product, quantity }];
         }
+        
+        set({ items: newItems, ...calculateTotals(newItems) });
       },
       
       removeItem: (id) => {
-        set({
-          items: get().items.filter((item) => item.id !== id),
-        });
+        const newItems = get().items.filter((item) => item.id !== id);
+        set({ items: newItems, ...calculateTotals(newItems) });
       },
       
       updateQuantity: (id, quantity) => {
@@ -53,22 +61,13 @@ export const useCartStore = create<CartStore>()(
           return;
         }
         
-        set({
-          items: get().items.map((item) =>
-            item.id === id ? { ...item, quantity } : item
-          ),
-        });
+        const newItems = get().items.map((item) =>
+          item.id === id ? { ...item, quantity } : item
+        );
+        set({ items: newItems, ...calculateTotals(newItems) });
       },
       
-      clearCart: () => set({ items: [] }),
-      
-      getTotalItems: () => {
-        return get().items.reduce((total, item) => total + item.quantity, 0);
-      },
-      
-      getTotalPrice: () => {
-        return get().items.reduce((total, item) => total + item.price * item.quantity, 0);
-      },
+      clearCart: () => set({ items: [], totalItems: 0, totalPrice: 0 }),
     }),
     {
       name: 'gast-cart-storage',

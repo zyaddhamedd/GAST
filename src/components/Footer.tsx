@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Phone, MessageCircle } from "lucide-react";
+import { getCategories } from "@/lib/dal";
 
-export function Footer() {
+export async function Footer() {
+  const categories = await getCategories();
+  
   return (
     <footer className="bg-brand-blue text-white w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
@@ -46,7 +49,7 @@ export function Footer() {
             <ul className="space-y-4 text-sm text-gray-300">
               <li className="flex items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">المتجر</Link>
+                <Link href="/shop" className="hover:text-white transition-colors">المتجر</Link>
               </li>
               <li className="flex items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-[10px]">‹</span>
@@ -54,15 +57,15 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">معلومات عنا</Link>
+                <Link href="/about" className="hover:text-white transition-colors">معلومات عنا</Link>
               </li>
               <li className="flex items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">الأسئلة الشائعة FAQ</Link>
+                <Link href="/faq" className="hover:text-white transition-colors">الأسئلة الشائعة FAQ</Link>
               </li>
               <li className="flex items-center gap-2 pb-3">
                 <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">اتصال</Link>
+                <Link href="/contact" className="hover:text-white transition-colors">اتصال</Link>
               </li>
             </ul>
           </div>
@@ -71,30 +74,14 @@ export function Footer() {
           <div className="col-span-1">
             <h4 className="text-xl font-bold mb-6 text-white">مجموعات ( تصنيفات المنتجات )</h4>
             <ul className="space-y-4 text-sm text-gray-300">
-              <li className="flex items-center gap-2 border-b border-white/10 pb-3">
-                <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">مضخات رفع مياه GAST</Link>
-              </li>
-              <li className="flex items-center gap-2 border-b border-white/10 pb-3">
-                <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">غواطس مياه GAST</Link>
-              </li>
-              <li className="flex items-center gap-2 border-b border-white/10 pb-3">
-                <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">غواطس مياه اعماق GAST</Link>
-              </li>
-              <li className="flex items-center gap-2 border-b border-white/10 pb-3">
-                <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">غواطس مياه ظهر & استالس GAST</Link>
-              </li>
-              <li className="flex items-center gap-2 border-b border-white/10 pb-3">
-                <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">غواطس مياه ظهر بالكامل GAST</Link>
-              </li>
-              <li className="flex items-center gap-2 pb-3">
-                <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">غواطس مياه استالس بالكامل GAST</Link>
-              </li>
+              {categories.map((cat: any) => (
+                <li key={cat.id} className="flex items-center gap-2 border-b border-white/10 pb-3 last:border-0">
+                  <span className="text-[10px]">‹</span>
+                  <Link href={`/shop?category=${cat.slug}`} className="hover:text-white transition-colors">
+                    {cat.name} GAST
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
           
@@ -103,9 +90,9 @@ export function Footer() {
         {/* Bottom */}
         <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-xs text-gray-400">
           <div className="flex gap-6 mb-4 md:mb-0">
-            <Link href="/" className="hover:text-white transition-colors">شروط الخدمة</Link>
-            <Link href="/" className="hover:text-white transition-colors">سياسة الخصوصية</Link>
-            <Link href="/" className="hover:text-white transition-colors">سياسة الشحن والاسترجاع</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">شروط الخدمة</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">سياسة الخصوصية</Link>
+            <Link href="/shipping" className="hover:text-white transition-colors">سياسة الشحن والاسترجاع</Link>
           </div>
           <div>
             GAST 2026 ©

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import Link from "next/link";
 import { 
   Award, 
@@ -86,8 +86,8 @@ export default function AboutPage() {
     <div className="min-h-screen bg-white" dir="rtl">
       {/* Hero Section */}
       <section className="relative h-[65vh] min-h-[500px] w-full overflow-hidden flex items-center justify-center">
-        <Image 
-          src="/assets/معلومات عنا.png" 
+        <SafeImage 
+          src="/assets/معلومات عنا.webp" 
           alt="About GAST" 
           fill 
           className="object-cover"
@@ -110,8 +110,8 @@ export default function AboutPage() {
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className={`relative h-[450px] md:h-[600px] rounded-[2rem] overflow-hidden shadow-2xl transition-all duration-1000 transform ${isPageLoaded ? "translate-x-0 opacity-100" : "translate-x-20 opacity-0"}`}>
-             <Image 
-              src="/assets/معلومات عنا2.png" 
+             <SafeImage 
+              src="/assets/معلومات عنا2.webp" 
               alt="GAST Technology" 
               fill 
               className="object-cover hover:scale-110 transition-transform duration-1000"

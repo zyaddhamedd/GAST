@@ -1,8 +1,6 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import SafeImage from "./SafeImage";
 import { Quote, Star } from "lucide-react";
+import { normalizeImagePath } from "@/lib/utils";
 
 const testimonials = [
   {
@@ -29,29 +27,8 @@ const testimonials = [
 ];
 
 export function Testimonials() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section ref={sectionRef} className="w-full py-24 bg-[#f9f9f9]" dir="rtl">
+    <section className="w-full py-24 bg-[#f9f9f9]" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -66,10 +43,8 @@ export function Testimonials() {
           {testimonials.map((item, index) => (
             <div 
               key={item.id}
-              className={`bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 relative border border-gray-100 ${
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
-              }`}
-              style={{ transitionDelay: `${index * 150}ms` }}
+              className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 relative border border-gray-100 animate-fade-up"
+              style={{ animationDelay: `${index * 150}ms` }}
             >
               {/* Quote Icon */}
               <div className="absolute top-6 left-6 opacity-10">
@@ -91,11 +66,14 @@ export function Testimonials() {
               {/* User Info */}
               <div className="flex items-center gap-4 mt-auto border-t border-gray-100 pt-6">
                 <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm">
-                  <img 
-                    src={item.image} 
+                  <SafeImage 
+                    src={normalizeImagePath(item.image)} 
                     alt={item.name} 
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="48px"
                   />
+
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gray-900">{item.name}</h4>

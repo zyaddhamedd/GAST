@@ -4,21 +4,18 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronDown } from "lucide-react";
 
-const categories = [
-  { title: "مضخات رفع مياه", slug: "pumps" },
-  { title: "غاطس مياه هولمن", slug: "holmen-submersible" },
-  { title: "غاطس مياه زهر & استانلس", slug: "cast-iron-stainless" },
-  { title: "غاطس مياه استانلس بالكامل", slug: "stainless-full" },
-  { title: "غاطس مياه زهر بالكامل", slug: "cast-iron-full" },
-  { title: "غاطس اعماق هولمن", slug: "deep-holmen" },
-];
+interface Category {
+  name: string;
+  slug: string;
+}
 
 interface StoreDropdownProps {
   isMobile?: boolean;
   closeMobileMenu?: () => void;
+  categories: Category[];
 }
 
-export function StoreDropdown({ isMobile = false, closeMobileMenu }: StoreDropdownProps) {
+export function StoreDropdown({ isMobile = false, closeMobileMenu, categories }: StoreDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -74,7 +71,7 @@ export function StoreDropdown({ isMobile = false, closeMobileMenu }: StoreDropdo
                   className="flex items-center justify-between px-12 py-4.5 text-right text-gray-600 font-bold text-lg active:text-[#ff6a00] transition-colors group"
                 >
                   <ChevronLeft className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
-                  <span>{category.title}</span>
+                  <span>{category.name}</span>
                 </Link>
               </li>
             ))}
@@ -120,7 +117,7 @@ export function StoreDropdown({ isMobile = false, closeMobileMenu }: StoreDropdo
                   } hover:translate-x-[-6px]`}
                 >
                   <ChevronLeft className="w-4 h-4 opacity-0 -translate-x-2 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300 text-[#ff6a00]" />
-                  <span className="flex-1 text-[15px]">{category.title}</span>
+                  <span className="flex-1 text-[15px]">{category.name}</span>
                 </Link>
               </li>
             ))}

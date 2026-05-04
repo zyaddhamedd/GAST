@@ -2,18 +2,19 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import { 
   Trash2, Plus, Minus, ShoppingBag, ArrowRight, 
   Truck, ShieldCheck, CreditCard 
 } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { motion, AnimatePresence } from "framer-motion";
+import { normalizeImagePath } from "@/lib/utils";
 import toast from "react-hot-toast";
 
 export default function CartPage() {
   const [mounted, setMounted] = useState(false);
-  const { items, removeItem, updateQuantity, getTotalPrice, getTotalItems } = useCartStore();
+  const { items, removeItem, updateQuantity, totalPrice, totalItems } = useCartStore();
 
   useEffect(() => {
     setMounted(true);
@@ -21,7 +22,7 @@ export default function CartPage() {
 
   if (!mounted) return null;
 
-  const subtotal = getTotalPrice();
+  const subtotal = totalPrice;
   const shipping = subtotal > 5000 ? 0 : 50;
   const total = subtotal + shipping;
 
@@ -55,7 +56,7 @@ export default function CartPage() {
   return (
     <div className="bg-[#f9fafb] min-h-screen pb-24 pt-8" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-black text-brand-blue mb-8">سلة المشتريات ({getTotalItems()})</h1>
+        <h1 className="text-3xl font-black text-brand-blue mb-8">سلة المشتريات ({totalItems})</h1>
         
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Items List */}
@@ -72,12 +73,14 @@ export default function CartPage() {
                 >
                   {/* Product Image */}
                   <div className="relative w-full md:w-32 aspect-square md:h-32 bg-[#f9fafb] rounded-xl overflow-hidden shrink-0 border border-gray-50">
-                    <Image 
-                      src={item.image} 
+                    <SafeImage 
+                      src={normalizeImagePath(item.image)} 
                       alt={item.name} 
                       fill 
                       className="object-contain p-2 md:p-4"
+                      sizes="128px"
                     />
+
                   </div>
 
                   {/* Info */}
@@ -92,7 +95,6 @@ export default function CartPage() {
                         {item.price.toLocaleString()} <span className="text-xs font-normal text-gray-500">ج.م</span>
                       </p>
                       
-                      {/* Remove Button Mobile (Absolute Top Right) */}
                       <button 
                         onClick={() => {
                           removeItem(item.id);
@@ -161,7 +163,6 @@ export default function CartPage() {
               ))}
             </AnimatePresence>
 
-            {/* Trust Badges */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
               <div className="bg-white p-4 rounded-xl border border-gray-100 flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-50 text-brand-blue rounded-full flex items-center justify-center shrink-0">
@@ -230,32 +231,6 @@ export default function CartPage() {
                 إتمام الطلب
                 <ArrowRight className="w-6 h-6 rotate-180" />
               </Link>
-
-              <div className="mt-6 space-y-3">
-                <p className="text-center text-xs text-gray-400">نحن نقبل:</p>
-                <div className="flex justify-center gap-4 grayscale opacity-50">
-                  <Image src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" width={40} height={20} />
-                  <Image src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" width={30} height={20} />
-                  <Image src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" width={50} height={20} />
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Sticky CTA */}
-            <div className="fixed bottom-0 left-0 right-0 lg:hidden bg-white border-t border-gray-100 p-4 pb-8 z-40 shadow-[0_-20px_40px_rgba(0,0,0,0.08)]">
-               <div className="flex items-center justify-between gap-6">
-                  <div className="shrink-0">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">الإجمالي الكلي</p>
-                    <p className="text-2xl font-black text-brand-blue">{total.toLocaleString()} ج.م</p>
-                  </div>
-                  <Link 
-                    href="/checkout" 
-                    className="flex-1 bg-[#ff6a00] active:scale-[0.98] text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 shadow-lg shadow-[#ff6a00]/30 transition-all"
-                  >
-                    إتمام الطلب
-                    <ArrowRight className="w-5 h-5 rotate-180" />
-                  </Link>
-               </div>
             </div>
           </div>
         </div>

@@ -1,0 +1,50 @@
+'use client';
+
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
+
+type Props = React.ComponentProps<typeof Image> & {
+  fallbackSrc?: string;
+  aspectRatio?: string;
+};
+
+export default function SafeImage({ 
+  src, 
+  alt = 'Image',
+  fallbackSrc = '/placeholder.webp', 
+  onError, 
+  className,
+  sizes = '(max-width: 768px) 100vw, 50vw',
+  loading,
+  priority = false,
+  ...props 
+}: Props) {
+  const [imgSrc, setImgSrc] = useState(src);
+
+  // Sync state with src prop change
+  useEffect(() => {
+    setImgSrc(src);
+  }, [src]);
+
+  const isCloudinary = typeof imgSrc === 'string' && imgSrc.includes('res.cloudinary.com');
+  const isLegacyUpload = typeof imgSrc === 'string' && (imgSrc.startsWith('/uploads/') || imgSrc.startsWith('/api/media/'));
+
+  return (
+    <Image
+      {...props}
+      src={imgSrc || fallbackSrc}
+      alt={alt}
+      sizes={sizes}
+      priority={priority}
+      loading={priority ? undefined : (loading || 'lazy')}
+      unoptimized={isLegacyUpload || props.unoptimized}
+      className={`${className} transition-opacity duration-300`}
+      onError={(e) => {
+        console.error('Image load error:', imgSrc);
+        setImgSrc(fallbackSrc);
+        if (onError) onError(e);
+      }}
+    />
+  );
+}
+

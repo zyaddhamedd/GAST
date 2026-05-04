@@ -1,25 +1,31 @@
-import Image from "next/image";
+import { Suspense } from "react";
+import SafeImage from "@/components/SafeImage";
 import Link from "next/link";
-import { ChevronDown, Search, ArrowRight } from "lucide-react";
 import { HeroSlider } from "@/components/HeroSlider";
-import { CategoryGrid } from "@/components/CategoryGrid";
 import { Testimonials } from "@/components/Testimonials";
-import { ProductCard, Product } from "@/components/ProductCard";
+import { HomeCategoryGrid } from "@/components/HomeCategoryGrid";
+import { CategoryGridSkeleton } from "@/components/Skeletons";
 
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  // No top-level awaits here! 
+  // This allows the Header/Layout and Hero Section to render immediately.
+
   return (
     <div className="flex flex-col w-full bg-white overflow-x-hidden">
-      {/* Hero Section */}
+      {/* Hero Section - Static content, renders immediately */}
       <HeroSlider />
 
-      {/* Category Grid Section */}
+      {/* Category Grid Section - Streamed */}
       <div className="py-8 md:py-20">
-        <CategoryGrid />
+        <Suspense fallback={<CategoryGridSkeleton />}>
+          <HomeCategoryGrid />
+        </Suspense>
       </div>
 
-
-      {/* About Section */}
+      {/* About Section - Static, renders immediately */}
       <div className="bg-[#f9fafb] border-t border-gray-200 py-12 md:py-0 overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between">
           
@@ -47,11 +53,12 @@ export default function Home() {
 
           {/* Image */}
           <div className="w-full md:w-1/2 min-h-[300px] md:min-h-[500px] relative bg-gray-200 mb-8 md:mb-0">
-            <Image 
-              src="/assets/سكشن 3.png" 
+            <SafeImage 
+              src="/assets/سكشن 3.webp" 
               alt="About Holmen" 
               fill 
               className="object-cover" 
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
             <div className="absolute inset-0 bg-brand-blue/10"></div>
           </div>

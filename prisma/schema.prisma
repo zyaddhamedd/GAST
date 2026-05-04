@@ -1,0 +1,151 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Site {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  domain    String?  @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  categories Category[]
+  products   Product[]
+  orders     Order[]
+  messages   Message[]
+  users      User[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+  
+  siteId    Int?
+  site      Site?    @relation(fields: [siteId], references: [id])
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  image     String
+  createdAt DateTime  @default(now())
+
+  siteId    Int
+  site      Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  products  Product[]
+
+  @@index([slug])
+  @@index([siteId, slug])
+}
+
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  url       String
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model Product {
+  id          Int            @id @default(autoincrement())
+  name        String
+  slug        String         @unique
+  subtitle    String?
+  description String
+  price       Float
+  oldPrice    Float?
+  discount    Float?
+  inStock     Boolean        @default(true)
+  power       Float?
+  voltage     String?
+  specs       Json?
+  
+  siteId      Int
+  site        Site           @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  categoryId  Int
+  category    Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  images      ProductImage[]
+  
+  createdAt   DateTime       @default(now())
+  
+  orderItems  OrderItem[]
+
+  @@index([categoryId])
+  @@index([price])
+  @@index([power])
+  @@index([voltage])
+  @@index([createdAt(sort: Desc)])
+  @@index([siteId, categoryId, createdAt(sort: Desc)])
+  @@index([siteId, price, createdAt(sort: Desc)])
+  @@index([siteId, createdAt(sort: Desc)])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  customerName String
+  phone        String
+  email        String?
+  address      String
+  total        Float
+  status       OrderStatus @default(PENDING)
+  createdAt    DateTime    @default(now())
+
+  siteId       Int
+  site         Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  items        OrderItem[]
+
+  @@index([status])
+  @@index([siteId])
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+  price     Float
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  name       String
+  phone      String
+  email      String?
+  message    String
+  readStatus Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  siteId     Int
+  site       Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([readStatus])
+  @@index([siteId])
+}
