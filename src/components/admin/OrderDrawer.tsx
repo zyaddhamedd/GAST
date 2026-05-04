@@ -37,8 +37,25 @@ export default function OrderDrawer({ order, onClose, onStatusChange }: OrderDra
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4" 
       onClick={onClose}
     >
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(99, 102, 241, 0.2);
+          border-radius: 10px;
+          transition: all 0.3s ease;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(99, 102, 241, 0.5);
+        }
+      `}} />
       <div 
-        className="bg-[#111111] rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-white/10 p-6 shadow-2xl animate-in fade-in zoom-in duration-200" 
+        className="bg-[#111111] rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar border border-white/10 p-6 shadow-2xl animate-in fade-in zoom-in duration-200" 
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-6">
