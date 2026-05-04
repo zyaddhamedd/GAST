@@ -1,17 +1,21 @@
 import { v2 as cloudinary } from 'cloudinary';
 
-if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  // We don't throw error here to prevent build-time crashes, 
-  // but we should warn in dev.
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('Cloudinary environment variables are missing');
-  }
+const cloud_name = process.env.CLOUDINARY_CLOUD_NAME;
+const api_key = process.env.CLOUDINARY_API_KEY;
+const api_secret = process.env.CLOUDINARY_API_SECRET;
+
+if (!cloud_name || !api_key || !api_secret) {
+  console.error('[CLOUDINARY CONFIG ERROR] Missing variables:', {
+    has_cloud_name: !!cloud_name,
+    has_api_key: !!api_key,
+    has_api_secret: !!api_secret
+  });
 }
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name,
+  api_key,
+  api_secret,
   secure: true,
 });
 
