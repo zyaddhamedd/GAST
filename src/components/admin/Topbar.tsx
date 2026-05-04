@@ -1,11 +1,22 @@
 "use client";
 
-import { Search, Bell } from 'lucide-react';
+import { Search, Bell, Menu } from 'lucide-react';
 
-export default function Topbar() {
+interface TopbarProps {
+  onMenuClick: () => void;
+}
+
+export default function Topbar({ onMenuClick }: TopbarProps) {
   return (
-    <div className="h-16 bg-[#0a0a0a] border-b border-white/5 flex items-center justify-between px-8 z-10">
-      <div className="flex items-center gap-6 flex-1">
+    <div className="h-16 bg-[#0a0a0a] border-b border-white/5 flex items-center justify-between px-4 md:px-8 z-10">
+      <div className="flex items-center gap-3 md:gap-6 flex-1">
+        <button 
+          onClick={onMenuClick}
+          className="p-2 text-gray-400 hover:text-white md:hidden bg-white/5 rounded-lg active:scale-95 transition-all"
+        >
+          <Menu size={20} />
+        </button>
+
         <div className="flex-1 max-w-md relative group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-red-500 transition-colors" size={18} />
           <input 
@@ -16,7 +27,7 @@ export default function Topbar() {
         </div>
       </div>
 
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-2 md:gap-5">
         <button className="relative p-2 text-gray-400 hover:text-white bg-white/0 hover:bg-white/5 rounded-xl transition-all active:scale-90">
           <Bell size={20} />
           <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-[#0a0a0a]"></span>

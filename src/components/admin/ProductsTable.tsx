@@ -19,6 +19,71 @@ interface Product {
 }
 
 /**
+ * Optimized Product Card for Mobile
+ */
+const ProductCard = memo(({ 
+  product, 
+  onDelete, 
+  isPending 
+}: { 
+  product: Product; 
+  onDelete: (id: number) => void; 
+  isPending: boolean;
+}) => {
+  return (
+    <div className="bg-[#111111] rounded-2xl border border-white/5 p-4 flex flex-col gap-4 shadow-sm active:scale-[0.98] transition-all">
+      <div className="flex gap-4">
+        <div className="relative w-16 h-16 rounded-xl bg-white/5 border border-white/5 overflow-hidden shrink-0">
+          {product.images?.[0] ? (
+            <SafeImage 
+              src={normalizeImagePath(product.images[0].url)} 
+              alt="" 
+              fill
+              className="object-cover" 
+              sizes="64px"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-white/5">
+              <img src="/placeholder.webp" alt="" className="w-1/2 h-1/2 object-contain opacity-20" />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <h3 className="font-bold text-white truncate">{product.name}</h3>
+          <p className="text-sm text-gray-500">{product.category?.name}</p>
+          <div className="flex items-center gap-2 mt-1">
+             <span className="font-black text-red-500">${product.price.toFixed(2)}</span>
+             <span className={`px-2 py-0.5 rounded-full text-[8px] font-bold ${product.inStock ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+              {product.inStock ? 'In Stock' : 'Out of Stock'}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex gap-2 pt-2 border-t border-white/5">
+        <Link 
+          href={`/admin/products/${product.id}`}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-blue-500/10 text-gray-400 hover:text-blue-500 rounded-xl border border-white/5 transition-all text-xs font-bold"
+        >
+          <Edit size={16} />
+          Edit
+        </Link>
+        <button 
+          onClick={() => onDelete(product.id)}
+          disabled={isPending}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-red-500/10 text-gray-400 hover:text-red-500 rounded-xl border border-white/5 transition-all text-xs font-bold disabled:opacity-50"
+        >
+          <Trash2 size={16} />
+          Delete
+        </button>
+      </div>
+    </div>
+  );
+});
+
+ProductCard.displayName = "ProductCard";
+
+/**
  * Optimized Product Row Component
  * Wrapped in React.memo to prevent re-renders when other rows change.
  */
@@ -62,7 +127,7 @@ const ProductRow = memo(({
         </span>
       </td>
       <td className="px-6 py-4 text-right">
-        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-150">
+        <div className="flex justify-end gap-2 md:opacity-0 md:group-hover:opacity-100 transition-all duration-150">
           <Link 
             href={`/admin/products/${product.id}`}
             className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all active:scale-90"
@@ -81,6 +146,7 @@ const ProductRow = memo(({
     </tr>
   );
 });
+
 
 ProductRow.displayName = "ProductRow";
 
@@ -127,7 +193,25 @@ export default function ProductsTable({
 
   return (
     <div className="space-y-4">
-      <div className="bg-[#111111] rounded-2xl border border-white/5 shadow-2xl overflow-hidden">
+      {/* Mobile Card View */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {optimisticProducts.map((product) => (
+          <ProductCard 
+            key={product.id} 
+            product={product} 
+            onDelete={handleDelete} 
+            isPending={isPending} 
+          />
+        ))}
+        {optimisticProducts.length === 0 && (
+          <div className="bg-[#111111] rounded-2xl border border-white/5 p-12 text-center text-gray-600 font-medium">
+            No products available.
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block bg-[#111111] rounded-2xl border border-white/5 shadow-2xl overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left text-sm text-gray-400">
             <thead className="text-xs text-gray-500 uppercase bg-white/5">
@@ -157,6 +241,7 @@ export default function ProductsTable({
           </table>
         </div>
       </div>
+
 
       {/* Admin Pagination */}
       {totalPages > 1 && (

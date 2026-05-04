@@ -37,10 +37,37 @@ export default async function DashboardPage() {
       </div>
 
       <div className="bg-[#111111] rounded-2xl border border-white/5 shadow-2xl overflow-hidden">
-        <div className="p-6 border-b border-white/5">
+        <div className="p-4 md:p-6 border-b border-white/5 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-white">Recent Orders</h3>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Mobile View */}
+        <div className="md:hidden divide-y divide-white/5">
+          {recentOrders.map((order: any) => (
+            <div key={order.id} className="p-4 flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="font-bold text-white truncate">{order.customerName}</p>
+                <p className="text-xs text-gray-500 mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
+              </div>
+              <div className="flex flex-col items-end gap-2 shrink-0">
+                <p className="font-black text-[#ff6a00]">${order.total.toFixed(2)}</p>
+                <span className={`px-2 py-0.5 rounded-full text-[8px] font-bold
+                  ${order.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-500' : 
+                    order.status === 'CONFIRMED' ? 'bg-blue-500/10 text-blue-500' : 
+                    order.status === 'DELIVERED' ? 'bg-green-500/10 text-green-500' : 
+                    'bg-gray-500/10 text-gray-500'}`}>
+                  {order.status}
+                </span>
+              </div>
+            </div>
+          ))}
+          {recentOrders.length === 0 && (
+            <div className="p-8 text-center text-gray-500">No orders found.</div>
+          )}
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-400">
             <thead className="text-xs text-gray-500 uppercase bg-white/5">
               <tr>
@@ -76,6 +103,7 @@ export default async function DashboardPage() {
           </table>
         </div>
       </div>
+
     </div>
   );
 }

@@ -103,23 +103,23 @@ export default function CategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-white">Categories</h1>
+      <div className="flex justify-between items-center px-4 md:px-0">
+        <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">Categories</h1>
         <button
           onClick={() => {
             setShowAdd(!showAdd);
             setFormData({ name: '', slug: '', image: '' });
             setImagePreview(null);
           }}
-          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl transition-all font-medium text-sm shadow-lg shadow-red-600/20"
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl transition-all font-bold text-xs shadow-lg shadow-red-600/20 active:scale-95"
         >
           <Plus size={18} />
-          Add Category
+          {showAdd ? 'Cancel' : 'Add Category'}
         </button>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64 text-gray-500 font-medium">
+        <div className="flex items-center justify-center h-64 text-gray-500 font-medium animate-pulse">
           Loading categories...
         </div>
       ) : (
@@ -127,18 +127,19 @@ export default function CategoriesPage() {
           {showAdd && (
             <form
               onSubmit={handleAdd}
-              className="bg-[#111111] p-6 rounded-2xl border border-white/5 shadow-2xl space-y-4"
+              className="bg-[#111111] p-4 md:p-6 rounded-2xl border border-white/5 shadow-2xl space-y-6"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Name */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1">
-                    Name
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                    Category Name
                   </label>
                   <input
                     required
                     type="text"
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg outline-none focus:ring-2 focus:ring-red-500/20 transition-all"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 transition-all"
+                    placeholder="e.g. Air Conditioners"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
@@ -148,13 +149,14 @@ export default function CategoriesPage() {
 
                 {/* Slug */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
                     Slug
                   </label>
                   <input
                     required
                     type="text"
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 text-white rounded-lg outline-none focus:ring-2 focus:ring-red-500/20 transition-all"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 transition-all"
+                    placeholder="e.g. air-conditioners"
                     value={formData.slug}
                     onChange={(e) =>
                       setFormData({ ...formData, slug: e.target.value })
@@ -165,35 +167,35 @@ export default function CategoriesPage() {
 
               {/* Image Upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">
+                <label className="block text-sm font-medium text-gray-400 mb-3">
                   Category Image
                 </label>
 
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-4">
                   {/* Preview */}
                   {imagePreview && (
-                    <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-white/10 shrink-0">
+                    <div className="relative w-full sm:w-24 aspect-video sm:aspect-square rounded-xl overflow-hidden border border-white/10 shrink-0">
                       <SafeImage
                         src={imagePreview}
                         alt="preview"
                         fill
                         className="object-cover"
-                        sizes="96px"
+                        sizes="(max-width: 640px) 100vw, 96px"
                       />
                     </div>
                   )}
 
                   {/* Upload zone */}
-                  <label className="flex-1 flex items-center justify-center gap-2 py-4 border-2 border-dashed border-white/10 rounded-xl cursor-pointer hover:border-red-500 hover:bg-white/5 transition-all min-h-[5rem]">
+                  <label className="flex-1 flex flex-col items-center justify-center gap-2 py-6 border-2 border-dashed border-white/10 rounded-xl cursor-pointer hover:border-red-500 hover:bg-white/5 transition-all">
                     {uploading ? (
-                      <span className="text-sm text-gray-500 flex items-center gap-2">
+                      <span className="text-xs text-red-500 font-bold flex items-center gap-2 animate-pulse">
                         <Upload size={16} className="animate-bounce" />
-                        Uploading...
+                        Uploading assets...
                       </span>
                     ) : (
-                      <span className="text-sm text-gray-500 flex items-center gap-2">
-                        <ImagePlus size={16} />
-                        {imagePreview ? 'Change image' : 'Upload image'}
+                      <span className="text-sm text-gray-500 font-medium flex items-center gap-2">
+                        <ImagePlus size={18} />
+                        {imagePreview ? 'Change Image' : 'Upload Image'}
                       </span>
                     )}
                     <input
@@ -208,11 +210,11 @@ export default function CategoriesPage() {
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-6 py-2 rounded-xl font-medium transition-all shadow-lg shadow-red-600/20"
+                  className="w-full sm:w-auto bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-10 py-3 rounded-xl font-bold transition-all shadow-xl shadow-red-600/20 active:scale-95"
                 >
                   Save Category
                 </button>
@@ -220,29 +222,37 @@ export default function CategoriesPage() {
             </form>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {categories.map((cat: any) => (
               <div
                 key={cat.id}
-                className="bg-[#111111] rounded-2xl border border-white/5 shadow-2xl overflow-hidden flex flex-col hover:border-white/10 transition-all group"
+                className="bg-[#111111] rounded-2xl border border-white/5 shadow-sm overflow-hidden flex flex-col hover:border-white/10 transition-all group"
               >
                 <div className="h-40 bg-white/5 relative overflow-hidden">
                   <SafeImage
                     src={normalizeImagePath(cat.image)}
                     alt={cat.name}
                     fill
-                    className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
+                  <div className="absolute top-2 right-2 opacity-0 md:group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleDelete(cat.id)}
+                      className="bg-black/60 backdrop-blur-md text-white hover:text-red-500 p-2 rounded-xl transition-all"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
-                <div className="p-5 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-white">{cat.name}</h3>
-                    <p className="text-sm text-gray-500">/{cat.slug}</p>
+                <div className="p-4 flex items-center justify-between">
+                  <div className="min-w-0">
+                    <h3 className="font-bold text-white truncate">{cat.name}</h3>
+                    <p className="text-xs text-gray-500 truncate">/{cat.slug}</p>
                   </div>
                   <button
                     onClick={() => handleDelete(cat.id)}
-                    className="text-gray-500 hover:bg-red-500/10 hover:text-red-500 p-2 rounded-lg transition-colors"
+                    className="md:hidden text-gray-500 hover:bg-red-500/10 hover:text-red-500 p-2 rounded-lg transition-colors active:scale-90"
                   >
                     <Trash2 size={18} />
                   </button>

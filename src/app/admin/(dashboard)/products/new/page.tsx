@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, X, ImagePlus, Plus, Trash2 } from 'lucide-react';
+import { Upload, X, ImagePlus, Plus, Trash2, ChevronDown } from 'lucide-react';
 import SafeImage from '@/components/SafeImage';
 
 
@@ -128,21 +128,24 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white tracking-tight">Add New <span className="text-red-500">Product</span></h1>
+    <div className="max-w-4xl mx-auto space-y-6 pb-24 md:pb-0">
+      <div className="flex items-center justify-between px-4 md:px-0">
+        <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight">Add New <span className="text-red-500">Product</span></h1>
+        <button onClick={() => router.back()} className="hidden md:block text-sm text-gray-500 hover:text-white transition-colors">Back to list</button>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-[#111111] p-8 rounded-2xl border border-white/5 shadow-2xl space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <form onSubmit={handleSubmit} className="bg-[#111111] p-4 md:p-8 rounded-2xl border border-white/5 shadow-2xl space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           
           {/* Left Column: Basic Info */}
           <div className="space-y-6">
+            <h2 className="text-xs font-black uppercase tracking-widest text-red-500/50">Basic Information</h2>
+            
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">Product Name</label>
               <input
                 required type="text"
-                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
@@ -152,65 +155,73 @@ export default function AddProductPage() {
               <label className="block text-sm font-medium text-gray-400 mb-2">Description</label>
               <textarea
                 required rows={5}
-                className="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all resize-none"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all resize-none"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">Price (EGP)</label>
                 <input
                   required type="number" step="0.01"
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">Category</label>
-                <select
-                  required
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all appearance-none"
-                  value={formData.categoryId}
-                  onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                >
-                  <option value="" className="bg-[#111111]">Select Category</option>
-                  {categories.map((c: any) => (
-                    <option key={c.id} value={c.id} className="bg-[#111111]">{c.name}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    required
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all appearance-none"
+                    value={formData.categoryId}
+                    onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                  >
+                    <option value="" className="bg-[#111111]">Select Category</option>
+                    {categories.map((c: any) => (
+                      <option key={c.id} value={c.id} className="bg-[#111111]">{c.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">Power (HP)</label>
                 <input
                   type="number" step="0.5" placeholder="e.g. 1.5"
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all"
                   value={formData.power}
                   onChange={(e) => setFormData({ ...formData, power: e.target.value })}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">Voltage</label>
-                <select
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all appearance-none"
-                  value={formData.voltage}
-                  onChange={(e) => setFormData({ ...formData, voltage: e.target.value })}
-                >
-                  <option value="" className="bg-[#111111]">Select Voltage</option>
-                  <option value="220V" className="bg-[#111111]">220V</option>
-                  <option value="380V" className="bg-[#111111]">380V</option>
-                </select>
+                <div className="relative">
+                  <select
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white rounded-xl outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500/50 transition-all appearance-none"
+                    value={formData.voltage}
+                    onChange={(e) => setFormData({ ...formData, voltage: e.target.value })}
+                  >
+                    <option value="" className="bg-[#111111]">Select Voltage</option>
+                    <option value="220V" className="bg-[#111111]">220V</option>
+                    <option value="380V" className="bg-[#111111]">380V</option>
+                  </select>
+                  <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                </div>
               </div>
             </div>
           </div>
 
           {/* Right Column: Images + Specs */}
           <div className="space-y-6">
+            <h2 className="text-xs font-black uppercase tracking-widest text-red-500/50">Media & Specs</h2>
+            
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-3">Product Images</label>
               
@@ -221,7 +232,7 @@ export default function AddProductPage() {
 
                     <button
                       type="button" onClick={() => removeImage(i)}
-                      className="absolute top-1.5 right-1.5 bg-red-600 text-white rounded-lg p-1 shadow-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-red-700"
+                      className="absolute top-1.5 right-1.5 bg-red-600 text-white rounded-lg p-1.5 shadow-lg md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-red-700 active:scale-90"
                     >
                       <X size={14} />
                     </button>
@@ -247,7 +258,7 @@ export default function AddProductPage() {
                 <label className="text-sm font-semibold text-gray-400">Specifications</label>
                 <button
                   type="button" onClick={addSpecRow}
-                  className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors"
+                  className="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-400 transition-colors p-2 -m-2"
                 >
                   + Add Row
                 </button>
@@ -270,7 +281,7 @@ export default function AddProductPage() {
                     <button
                       type="button" onClick={() => removeSpecRow(i)}
                       disabled={specs.length === 1}
-                      className="text-gray-600 hover:text-red-500 transition-colors disabled:opacity-0"
+                      className="text-gray-600 hover:text-red-500 transition-colors disabled:opacity-0 p-1"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -297,7 +308,8 @@ export default function AddProductPage() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-white/5 flex justify-end gap-4">
+        {/* Desktop Submit Bar */}
+        <div className="hidden md:flex pt-8 border-t border-white/5 justify-end gap-4">
           <button
             type="button"
             onClick={() => router.back()}
@@ -313,7 +325,26 @@ export default function AddProductPage() {
             {loading ? 'Saving Changes...' : 'Publish Product'}
           </button>
         </div>
+
+        {/* Mobile Sticky Submit Bar */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-[#0a0a0a]/80 backdrop-blur-md border-t border-white/10 flex gap-3 z-50">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex-1 px-4 py-3 text-sm font-bold text-gray-400 bg-white/5 rounded-xl border border-white/5 active:scale-95"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading || uploading}
+            className="flex-[2] bg-red-600 disabled:opacity-50 text-white px-4 py-3 rounded-xl font-bold transition-all active:scale-95"
+          >
+            {loading ? 'Saving...' : 'Publish'}
+          </button>
+        </div>
       </form>
     </div>
+
   );
 }

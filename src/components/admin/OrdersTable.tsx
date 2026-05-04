@@ -52,30 +52,38 @@ const OrderRow = memo(({
   
   return (
     <div className="bg-[#111111] rounded-2xl border border-white/5 overflow-hidden shadow-sm hover:shadow-2xl hover:border-white/10 transition-all group">
-      <div className="p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="p-4 md:p-5 flex flex-col lg:flex-row lg:items-center gap-4">
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center shrink-0 group-hover:bg-white/10 transition-colors">
             <Package className="w-5 h-5 text-gray-400" />
           </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-white">#{order.id}</span>
-              <span className="text-gray-700">·</span>
-              <span className="font-semibold text-gray-200 truncate">{order.customerName}</span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between lg:justify-start gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-white">#{order.id}</span>
+                <span className="text-gray-700">·</span>
+                <span className="font-semibold text-gray-200 truncate max-w-[120px] md:max-w-none">{order.customerName}</span>
+              </div>
+              <div className="lg:hidden text-right">
+                <p className="text-lg font-black text-[#ff6a00]">
+                  {order.total.toLocaleString("ar-EG")}
+                  <span className="text-[10px] font-normal text-gray-500 mr-1">ج.م</span>
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+            <div className="flex items-center gap-3 mt-1 flex-wrap">
               <span className="flex items-center gap-1 text-xs text-gray-500">
                 <Phone className="w-3 h-3" /> {order.phone}
               </span>
-              <span className="flex items-center gap-1 text-xs text-gray-500 truncate max-w-[220px]">
+              <span className="flex items-center gap-1 text-xs text-gray-500 truncate max-w-[180px] md:max-w-[300px]">
                 <MapPin className="w-3 h-3" /> {order.address}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 shrink-0">
-          <div className="text-right">
+        <div className="flex items-center justify-between lg:justify-end gap-3 md:gap-4 pt-3 lg:pt-0 border-t lg:border-t-0 border-white/5 shrink-0">
+          <div className="hidden lg:block text-right">
             <p className="text-xl font-black text-[#ff6a00]">
               {order.total.toLocaleString("ar-EG")}
               <span className="text-xs font-normal text-gray-500 mr-1">ج.م</span>
@@ -85,28 +93,31 @@ const OrderRow = memo(({
             </p>
           </div>
 
-          <div className="relative">
-            <select
-              value={order.status}
-              onChange={(e) => onStatusChange(order.id, e.target.value)}
-              className={`text-[10px] font-bold px-3 py-1.5 rounded-xl border appearance-none outline-none cursor-pointer pr-7 transition-all active:scale-95 ${cfg.classes}`}
-            >
-              {Object.entries(STATUS_CONFIG).map(([val, { label }]) => (
-                <option key={val} value={val} className="bg-[#111111] text-white">{label}</option>
-              ))}
-            </select>
-            <ChevronDown className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
-          </div>
+          <div className="flex items-center gap-2 flex-1 lg:flex-none">
+            <div className="relative flex-1 lg:flex-none">
+              <select
+                value={order.status}
+                onChange={(e) => onStatusChange(order.id, e.target.value)}
+                className={`w-full lg:w-auto text-[10px] font-bold px-3 py-2 md:py-1.5 rounded-xl border appearance-none outline-none cursor-pointer pr-8 transition-all active:scale-95 ${cfg.classes}`}
+              >
+                {Object.entries(STATUS_CONFIG).map(([val, { label }]) => (
+                  <option key={val} value={val} className="bg-[#111111] text-white">{label}</option>
+                ))}
+              </select>
+              <ChevronDown className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
+            </div>
 
-          <button
-            onClick={() => onViewDetails(order)}
-            className="flex items-center gap-1.5 text-sm font-semibold text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl transition-all active:scale-95"
-          >
-            التفاصيل
-          </button>
+            <button
+              onClick={() => onViewDetails(order)}
+              className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 text-xs md:text-sm font-semibold text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 md:py-2 rounded-xl transition-all active:scale-95 whitespace-nowrap"
+            >
+              التفاصيل
+            </button>
+          </div>
         </div>
       </div>
     </div>
+
   );
 });
 
