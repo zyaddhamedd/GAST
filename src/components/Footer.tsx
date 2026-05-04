@@ -51,10 +51,7 @@ export async function Footer() {
                 <span className="text-[10px]">‹</span>
                 <Link href="/shop" className="hover:text-white transition-colors">المتجر</Link>
               </li>
-              <li className="flex items-center gap-2 border-b border-white/10 pb-3">
-                <span className="text-[10px]">‹</span>
-                <Link href="/" className="hover:text-white transition-colors">مدونة</Link>
-              </li>
+
               <li className="flex items-center gap-2 border-b border-white/10 pb-3">
                 <span className="text-[10px]">‹</span>
                 <Link href="/about" className="hover:text-white transition-colors">معلومات عنا</Link>

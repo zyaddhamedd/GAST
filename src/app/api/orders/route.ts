@@ -3,16 +3,39 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withSiteContext } from '@/lib/site-detection';
 import { revalidateTag } from 'next/cache';
+import { OrderStatus, PaymentMethod } from '@prisma/client';
 
 export async function POST(request: Request) {
   return withSiteContext(async () => {
     try {
       const body = await request.json();
-      const { customerName, phone, email, address, items } = body;
+      const { 
+        customerName, 
+        phone, 
+        email, 
+        address, 
+        items,
+        paymentProofImage
+      } = body;
+
+      const rawMethod = body.paymentMethod || PaymentMethod.COD;
 
       if (!customerName || !phone || !address || !items || !Array.isArray(items) || items.length === 0) {
         return new NextResponse('Missing required fields', { status: 400 });
       }
+
+      if (!Object.values(PaymentMethod).includes(rawMethod)) {
+        return new NextResponse('طريقة دفع غير مدعومة', { status: 400 });
+      }
+
+      const paymentMethod = rawMethod as PaymentMethod;
+
+      if (paymentMethod === PaymentMethod.INSTAPAY && (!paymentProofImage || !paymentProofImage.trim())) {
+        return new NextResponse('إيصال الدفع (سكرين شوت) مطلوب لطلبات انستاباي', { status: 400 });
+      }
+
+      const orderStatus = paymentMethod === PaymentMethod.INSTAPAY ? OrderStatus.PENDING_VERIFICATION : OrderStatus.PENDING;
+      const sanitizedProofImage = paymentMethod === 'INSTAPAY' ? paymentProofImage.trim() : null;
 
       const productIds = items.map((item: any) => parseInt(item.productId, 10));
       
@@ -54,6 +77,9 @@ export async function POST(request: Request) {
           email,
           address,
           total: calculatedTotal,
+          status: orderStatus,
+          paymentMethod: paymentMethod,
+          paymentProofImage: sanitizedProofImage,
           items: {
             create: orderItemsData,
           }

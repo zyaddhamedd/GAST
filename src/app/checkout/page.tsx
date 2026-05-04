@@ -22,8 +22,36 @@ export default function CheckoutPage() {
     address: "",
   });
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentImage, setPaymentImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadError(null);
+      if (!file.type.startsWith('image/')) {
+        setUploadError("يرجى اختيار ملف صورة صالح (PNG, JPG, WebP)");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setUploadError("حجم الصورة كبير جداً، الحد الأقصى 5 ميجا بايت");
+        return;
+      }
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      setPaymentImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -63,6 +91,36 @@ export default function CheckoutPage() {
     try {
       const fullAddress = `${formData.governorate} - ${formData.city} - ${formData.address}`;
 
+      let paymentProofImage = null;
+      if (paymentMethod === 'INSTAPAY') {
+        if (!paymentImage) {
+          setUploadError("برجاء رفع صورة إيصال التحويل لتأكيد الطلب");
+          setIsSubmitting(false);
+          return;
+        }
+
+        setIsUploading(true);
+        const uploadData = new FormData();
+        uploadData.append('file', paymentImage);
+        uploadData.append('folder', 'payments');
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: uploadData
+        });
+
+        if (!uploadRes.ok) {
+          setUploadError("فشل رفع الصورة، يرجى المحاولة مرة أخرى");
+          setIsUploading(false);
+          setIsSubmitting(false);
+          return;
+        }
+
+        const uploadJson = await uploadRes.json();
+        paymentProofImage = uploadJson.url;
+        setIsUploading(false);
+      }
+
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,6 +129,8 @@ export default function CheckoutPage() {
           phone: formData.phone,
           email: formData.email || undefined,
           address: fullAddress,
+          paymentMethod,
+          paymentProofImage,
           items: items.map((item) => ({
             productId: item.id,
             quantity: item.quantity,
@@ -259,6 +319,74 @@ export default function CheckoutPage() {
                   </div>
                   <Banknote className="w-8 h-8 text-gray-400" />
                 </label>
+
+                <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'INSTAPAY' ? 'border-[#ff6a00] bg-orange-50/50 ring-1 ring-[#ff6a00]' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <div className="relative flex items-center justify-center w-6 h-6 border-2 rounded-full mr-0 ml-4 border-[#ff6a00]">
+                    {paymentMethod === 'INSTAPAY' && <div className="w-3 h-3 bg-[#ff6a00] rounded-full"></div>}
+                  </div>
+                  <input type="radio" name="payment" value="INSTAPAY" className="hidden" checked={paymentMethod === 'INSTAPAY'} onChange={() => setPaymentMethod('INSTAPAY')} />
+                  <div className="flex-1">
+                    <h3 className="font-bold text-brand-blue">انستاباي (Instapay)</h3>
+                    <p className="text-sm text-gray-500">تحويل سريع ومباشر</p>
+                  </div>
+                  <div className="w-10 h-10 bg-brand-blue/5 rounded-lg flex items-center justify-center">
+                    <SafeImage src="/assets/instapay-logo.webp" alt="Instapay" width={32} height={32} className="object-contain" />
+                  </div>
+                </label>
+
+                {paymentMethod === 'INSTAPAY' && (
+                  <div className="mt-4 p-5 bg-blue-50/50 border border-blue-100 rounded-2xl space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="space-y-2">
+                      <p className="text-sm font-bold text-brand-blue">قم بتحويل المبلغ إلى الرقم التالي:</p>
+                      <div className="flex items-center justify-between p-3 bg-white border border-blue-100 rounded-xl">
+                        <span className="text-lg font-black text-brand-blue tracking-wider">01005708036</span>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText("01005708036");
+                            alert("تم نسخ الرقم");
+                          }}
+                          className="text-xs font-bold text-blue-600 hover:text-blue-700"
+                        >نسخ الرقم</button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <p className="text-sm font-bold text-brand-blue">ارفع صورة إيصال التحويل (Screenshot) *</p>
+                      <div 
+                        onClick={() => document.getElementById('payment-upload')?.click()}
+                        className={`relative group h-40 border-2 border-dashed rounded-2xl flex flex-col items-center justify-center gap-3 transition-all cursor-pointer ${imagePreview ? 'border-green-500 bg-green-50/30' : 'border-blue-200 bg-white hover:border-blue-400 hover:bg-blue-50/30'}`}
+                      >
+                        {imagePreview ? (
+                          <div className="relative w-full h-full flex items-center justify-center p-2">
+                            <SafeImage src={imagePreview} alt="Preview" fill className="object-contain rounded-xl p-1" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                              <span className="text-white text-xs font-bold">تغيير الصورة</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                              <ShieldCheck className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <div className="text-center">
+                              <p className="text-sm font-bold text-brand-blue">اضغط لرفع الصورة</p>
+                              <p className="text-[10px] text-gray-400 mt-1">PNG, JPG حتى 5 ميجا</p>
+                            </div>
+                          </>
+                        )}
+                        <input 
+                          type="file" 
+                          id="payment-upload" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleImageChange}
+                        />
+                      </div>
+                      {uploadError && <p className="text-red-500 text-xs mt-2 font-bold animate-pulse">{uploadError}</p>}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -302,10 +430,10 @@ export default function CheckoutPage() {
 
               <button 
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isUploading}
                 className="w-full bg-[#ff6a00] hover:bg-[#e65c00] text-white h-14 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#ff6a00]/30 hover:-translate-y-1 disabled:opacity-70 disabled:hover:translate-y-0"
               >
-                {isSubmitting ? (
+                {isSubmitting || isUploading ? (
                   <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   "تأكيد الطلب"

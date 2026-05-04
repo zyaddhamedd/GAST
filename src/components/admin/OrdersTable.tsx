@@ -4,6 +4,7 @@ import { useOptimistic, useState, memo, useCallback } from "react";
 import { Package, Phone, MapPin, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { OrderStatus, PaymentMethod } from "@prisma/client";
 
 const OrderDrawer = dynamic(() => import("./OrderDrawer"), {
   ssr: false,
@@ -24,16 +25,26 @@ interface Order {
   email?: string | null;
   address: string;
   total: number;
-  status: string;
+  status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  paymentProofImage?: string | null;
   createdAt: string | Date;
   items: OrderItem[];
 }
 
-const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
+interface OrderDrawerProps {
+  order: Order;
+  onClose: () => void;
+  onStatusChange?: (id: number, status: string) => void;
+}
+
+const STATUS_CONFIG: Record<OrderStatus, { label: string; classes: string }> = {
   PENDING:   { label: "قيد الانتظار", classes: "bg-amber-500/10 text-amber-500 border-amber-500/20"   },
+  PENDING_VERIFICATION: { label: "مراجعة الدفع", classes: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20" },
   CONFIRMED: { label: "مؤكد",         classes: "bg-blue-500/10 text-blue-500 border-blue-500/20"       },
   SHIPPED:   { label: "قيد الشحن",   classes: "bg-purple-500/10 text-purple-500 border-purple-500/20" },
   DELIVERED: { label: "تم التسليم",  classes: "bg-green-500/10 text-green-500 border-green-500/20"    },
+  REJECTED:  { label: "مرفوض",       classes: "bg-red-500/10 text-red-500 border-red-500/20"          },
 };
 
 /**
@@ -45,7 +56,7 @@ const OrderRow = memo(({
   onViewDetails 
 }: { 
   order: Order; 
-  onStatusChange: (id: number, status: string) => void;
+  onStatusChange: (id: number, status: OrderStatus) => void;
   onViewDetails: (order: Order) => void;
 }) => {
   const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.PENDING;
@@ -61,6 +72,9 @@ const OrderRow = memo(({
             <div className="flex items-center justify-between lg:justify-start gap-2">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-white">#{order.id}</span>
+                {order.paymentMethod === PaymentMethod.INSTAPAY && (
+                  <span className="bg-indigo-500/20 text-indigo-400 text-[8px] font-bold px-1.5 py-0.5 rounded border border-indigo-500/30">INSTAPAY</span>
+                )}
                 <span className="text-gray-700">·</span>
                 <span className="font-semibold text-gray-200 truncate max-w-[120px] md:max-w-none">{order.customerName}</span>
               </div>
@@ -97,7 +111,7 @@ const OrderRow = memo(({
             <div className="relative flex-1 lg:flex-none">
               <select
                 value={order.status}
-                onChange={(e) => onStatusChange(order.id, e.target.value)}
+                onChange={(e) => onStatusChange(order.id, e.target.value as OrderStatus)}
                 className={`w-full lg:w-auto text-[10px] font-bold px-3 py-2 md:py-1.5 rounded-xl border appearance-none outline-none cursor-pointer pr-8 transition-all active:scale-95 ${cfg.classes}`}
               >
                 {Object.entries(STATUS_CONFIG).map(([val, { label }]) => (
@@ -117,7 +131,6 @@ const OrderRow = memo(({
         </div>
       </div>
     </div>
-
   );
 });
 
@@ -129,11 +142,11 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
 
   const [optimisticOrders, updateOptimisticStatus] = useOptimistic(
     initialOrders,
-    (state, { id, status }: { id: number, status: string }) => 
+    (state, { id, status }: { id: number, status: OrderStatus }) => 
       state.map(o => o.id === id ? { ...o, status } : o)
   );
 
-  const handleStatusChange = useCallback(async (id: number, status: string) => {
+  const handleStatusChange = useCallback(async (id: number, status: OrderStatus) => {
     updateOptimisticStatus({ id, status });
     if (selected?.id === id) setSelected((prev) => prev ? { ...prev, status } : null);
 
@@ -174,6 +187,7 @@ export default function OrdersTable({ initialOrders }: { initialOrders: Order[] 
          <OrderDrawer
            order={selected}
            onClose={handleCloseDrawer}
+           onStatusChange={handleStatusChange}
          />
       )}
     </div>

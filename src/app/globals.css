@@ -23,6 +23,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Custom Cursor Logic */
+@media (pointer: fine) {
+  * {
+    cursor: none !important;
+  }
+}
+
 /* Instant Human-Perception Optimizations */
 @layer base {
   button, a {

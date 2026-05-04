@@ -10,25 +10,25 @@ import { normalizeImagePath } from "@/lib/utils";
 const slides = [
   {
     id: 1,
-    image: "/assets/هيرو1.webp",
+    image: "/assets/heronew1.webp",
     title: "طاقة يمكنك الوثوق بها",
     subtitle: "مضخات ومحركات صناعية فاخرة",
   },
   {
     id: 2,
-    image: "/assets/هيرو2.webp",
+    image: "/assets/heronew2.webp",
     title: "مُصممة للأداء العالي",
     subtitle: "كفاءة عالية. اعتمادية قصوى.",
   },
   {
     id: 3,
-    image: "/assets/هيرو4.webp",
+    image: "/assets/heronew3.webp",
     title: "صُممت للأعمال الشاقة",
     subtitle: "حلول صناعية تدوم طويلاً",
   },
   {
     id: 4,
-    image: "/assets/هيرو5.webp",
+    image: "/assets/heronew4.webp",
     title: "تكنولوجيا GAST",
     subtitle: "دقة. قوة. استدامة",
   },

@@ -56,7 +56,7 @@ export default function ContactPage() {
       {/* Hero Section */}
       <section className="relative h-[35vh] md:h-[45vh] min-h-[300px] md:min-h-[350px] w-full flex items-center justify-center overflow-hidden bg-brand-blue">
         <div className="absolute inset-0 opacity-20">
-          <SafeImage src="/assets/هيرو1.webp" alt="Contact Bg" fill className="object-cover blur-sm" />
+          <SafeImage src="/assets/heronew1.webp" alt="Contact Bg" fill className="object-cover blur-sm" />
 
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-brand-blue/80 to-brand-blue"></div>

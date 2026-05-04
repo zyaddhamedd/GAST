@@ -3,6 +3,7 @@ import { Cairo } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import CustomCursor from "@/components/CustomCursor";
 import { Toaster } from 'react-hot-toast';
 
 // Optimize Font loading
@@ -57,6 +58,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen flex flex-col font-sans bg-[#f9fafb] selection:bg-brand-blue selection:text-white">
         <Header />
+        <CustomCursor />
         <main className="flex-1">
           {children}
         </main>

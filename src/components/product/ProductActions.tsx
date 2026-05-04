@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import SafeImage from "../SafeImage";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
@@ -20,9 +21,23 @@ interface ProductActionsProps {
 
 export function ProductActions({ product }: ProductActionsProps) {
   const addItem = useCartStore((state) => state.addItem);
+  const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [showStickyAdd, setShowStickyAdd] = useState(false);
   const ctaRef = useRef<HTMLDivElement>(null);
+
+  const handleBuyNow = () => {
+    addItem(
+      {
+        id: product.id.toString(),
+        name: product.name,
+        price: product.price,
+        image: product.image,
+      },
+      quantity
+    );
+    router.push("/checkout");
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -83,12 +98,12 @@ export function ProductActions({ product }: ProductActionsProps) {
           </button>
         </div>
 
-        <Link
-          href="/checkout"
+        <button
+          onClick={handleBuyNow}
           className="w-full bg-brand-blue hover:bg-[#080d26] text-white h-14 rounded-xl font-bold text-lg transition-colors flex items-center justify-center"
         >
           شراء الآن
-        </Link>
+        </button>
       </div>
 
       {/* Sticky Add to Cart */}

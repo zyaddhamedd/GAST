@@ -1,10 +1,10 @@
 import Link from "next/link";
 import SafeImage from "./SafeImage";
-import { Search, User } from "lucide-react";
 import { StoreDropdown } from "./StoreDropdown";
 import { MobileMenu } from "./header/MobileMenu";
 import { getCategories } from "@/lib/dal";
 import { CartStatus } from "./header/CartStatus";
+import { SearchButton } from "./header/SearchButton";
 
 export async function Header() {
   const categories = await getCategories();
@@ -12,7 +12,7 @@ export async function Header() {
   return (
     <header className="w-full flex flex-col relative z-50">
       {/* Top Bar - High Contrast for instant visibility */}
-      <div className="bg-brand-blue text-white text-[11px] py-1 text-center flex items-center justify-center font-bold tracking-wider uppercase">
+      <div className="bg-[linear-gradient(to_right,#008C45_33.33%,#FFFFFF_33.33%,#FFFFFF_66.66%,#CD212A_66.66%)] text-gray-900 text-[11px] py-1 text-center flex items-center justify-center font-bold tracking-wider uppercase shadow-sm">
         عرض اليوم: شحن مجاني لجميع الطلبات في مصر
       </div>
 
@@ -34,14 +34,14 @@ export async function Header() {
 
           {/* Center: Massive Optimized Logo */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60]">
-            <Link href="/" className="flex items-center justify-center active:scale-90 transition-transform">
+            <Link href="/" className="flex items-center justify-center active:scale-90 transition-all duration-300 hover:scale-115">
               <div className="relative h-16 md:h-20 lg:h-24 w-40 md:w-56 lg:w-64">
                 <SafeImage 
-                  src="/assets/main logo.webp" 
+                  src="/assets/HEROHEADER.webp" 
                   alt="GAST Logo" 
                   fill
                   sizes="(max-width: 768px) 160px, (max-width: 1024px) 220px, 256px"
-                  className="object-contain transition-all duration-500 hover:scale-105"
+                  className="object-contain transition-all duration-500 hover:scale-110 drop-shadow-sm"
                   priority
                 />
 
@@ -49,14 +49,9 @@ export async function Header() {
             </Link>
           </div>
 
-          {/* Left: Instant Action Buttons */}
-          <div className="flex items-center gap-2 md:gap-5">
-            <button className="hidden sm:flex p-2 text-gray-900 hover:text-[#ff6a00] transition-all active:scale-90">
-              <Search className="w-5 h-5" />
-            </button>
-            <Link href="/admin/login" className="hidden md:flex p-2 text-gray-900 hover:text-[#ff6a00] transition-all active:scale-90">
-              <User className="w-5 h-5" />
-            </Link>
+          <div className="flex items-center gap-1 md:gap-5">
+            <SearchButton />
+
 
             
             <CartStatus />

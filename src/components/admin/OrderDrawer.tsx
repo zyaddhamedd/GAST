@@ -2,6 +2,7 @@
 
 import { X, ShoppingBag } from "lucide-react";
 import { normalizeImagePath } from "@/lib/utils";
+import { OrderStatus, PaymentMethod } from "@prisma/client";
 
 interface OrderItem {
   id: number;
@@ -17,7 +18,9 @@ interface Order {
   email?: string | null;
   address: string;
   total: number;
-  status: string;
+  status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  paymentProofImage?: string | null;
   createdAt: string | Date;
   items: OrderItem[];
 }
@@ -25,9 +28,10 @@ interface Order {
 interface OrderDrawerProps {
   order: Order;
   onClose: () => void;
+  onStatusChange?: (id: number, status: OrderStatus) => void;
 }
 
-export default function OrderDrawer({ order, onClose }: OrderDrawerProps) {
+export default function OrderDrawer({ order, onClose, onStatusChange }: OrderDrawerProps) {
   return (
     <div 
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4" 
@@ -52,7 +56,12 @@ export default function OrderDrawer({ order, onClose }: OrderDrawerProps) {
 
         <div className="space-y-6">
           <div className="p-5 bg-white/5 rounded-2xl border border-white/5 space-y-3">
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">بيانات العميل</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">بيانات العميل</p>
+              <span className="text-[10px] font-bold text-gray-500 bg-white/5 px-2 py-0.5 rounded-lg border border-white/5 uppercase">
+                {order.paymentMethod === PaymentMethod.INSTAPAY ? 'Instapay' : 'Cash on Delivery'}
+              </span>
+            </div>
             <div>
               <p className="text-white font-bold text-lg">{order.customerName}</p>
               <p className="text-blue-400 text-sm font-medium" dir="ltr">{order.phone}</p>
@@ -60,6 +69,42 @@ export default function OrderDrawer({ order, onClose }: OrderDrawerProps) {
               <p className="text-gray-300 text-sm mt-2">{order.address}</p>
             </div>
           </div>
+
+          {order.paymentMethod === PaymentMethod.INSTAPAY && order.paymentProofImage && (
+            <div className="p-5 bg-indigo-500/5 rounded-2xl border border-indigo-500/10 space-y-3">
+              <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest">إيصال الدفع (Instapay Proof)</p>
+              <div className="relative aspect-video rounded-xl border border-white/10 overflow-hidden bg-black/40 group cursor-pointer">
+                <a href={order.paymentProofImage} target="_blank" rel="noopener noreferrer">
+                  {order.paymentProofImage && (
+                    <img 
+                      src={order.paymentProofImage} 
+                      alt="Payment Proof" 
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" 
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="text-white text-xs font-bold bg-white/10 px-3 py-1.5 rounded-lg backdrop-blur-md border border-white/20">عرض الحجم الكامل</span>
+                  </div>
+                </a>
+              </div>
+              {order.status === OrderStatus.PENDING_VERIFICATION && onStatusChange && (
+                <div className="flex gap-2 pt-2">
+                  <button 
+                    onClick={() => onStatusChange(order.id, OrderStatus.CONFIRMED)}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-green-600/20"
+                  >
+                    قبول الدفع
+                  </button>
+                  <button 
+                    onClick={() => onStatusChange(order.id, OrderStatus.REJECTED)}
+                    className="flex-1 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-600/20 text-xs font-bold py-3 rounded-xl transition-all active:scale-95"
+                  >
+                    رفض الدفع
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="space-y-3">
             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">المنتجات ({order.items.length})</p>
