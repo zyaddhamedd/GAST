@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { verifyToken } from '@/lib/jwt';
 
 /**
- * PRODUCTION-GRADE PROXY (Middleware replacement in Next.js 16)
+ * PRODUCTION-GRADE MIDDLEWARE
  * Handles route protection, token verification, and CORS.
  */
 export async function proxy(request: NextRequest) {
@@ -29,7 +29,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Verify JWT using our hardened utility (uses jose)
+    // Verify JWT
     const payload = await verifyToken(token);
 
     if (!payload || payload.role !== 'ADMIN') {
@@ -45,17 +45,19 @@ export async function proxy(request: NextRequest) {
 
   const response = NextResponse.next();
 
-  // 3. Strict CORS Policy
-  // Only allow production domain and localhost
+  // 3. CORS Policy
   if (pathname.startsWith('/api')) {
     const origin = request.headers.get('origin');
+    
+    // In production, you should specify your Railway domain here
     const allowedOrigins = [
-      'https://gast-web.vercel.app', // Replace with your actual production domain
       'http://localhost:3000',
-      'http://127.0.0.1:3000'
+      'http://127.0.0.1:3000',
+      // The middleware will allow the current host if it's the same
+      request.nextUrl.origin 
     ];
 
-    if (origin && allowedOrigins.includes(origin)) {
+    if (origin && (allowedOrigins.includes(origin) || origin.endsWith('.railway.app'))) {
       response.headers.set('Access-Control-Allow-Origin', origin);
     }
 
@@ -67,7 +69,7 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
-// Next.js Middleware Matcher
+// Matcher for middleware
 export const config = {
   matcher: [
     '/admin/:path*',
