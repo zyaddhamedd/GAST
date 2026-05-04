@@ -182,14 +182,14 @@ export default function FAQPage() {
            <p className="text-xl text-gray-300 mb-12 font-medium max-w-2xl mx-auto">
              خبراء هولمن متاحون دائماً لمساعدتك في حساب الضغوط واختيار الموديل الأنسب لمشروعك مجاناً.
            </p>
-           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <a href="https://wa.me/..." className="w-full sm:w-auto flex items-center justify-center gap-3 bg-[#25d366] text-white px-10 py-5 rounded-2xl font-bold text-xl hover:scale-105 transition-transform shadow-xl shadow-[#25d366]/20">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+              <a href="https://wa.me/201005708036" className="w-full sm:w-auto flex items-center justify-center gap-3 bg-[#25d366] text-white px-10 py-5 rounded-2xl font-bold text-xl hover:scale-105 transition-transform shadow-xl shadow-[#25d366]/20">
                 تحدث مع خبير على واتساب
               </a>
-              <a href="tel:..." className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white text-brand-blue px-10 py-5 rounded-2xl font-bold text-xl hover:scale-105 transition-transform shadow-xl">
+              <a href="tel:01005708036" className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white text-brand-blue px-10 py-5 rounded-2xl font-bold text-xl hover:scale-105 transition-transform shadow-xl">
                 اتصل بنا مباشرة
               </a>
-           </div>
+            </div>
         </div>
       </section>
     </div>

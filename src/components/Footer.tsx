@@ -36,10 +36,10 @@ export async function Footer() {
                   <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
                 </div>
               </div>
-              <div className="flex items-center gap-2 font-bold text-sm bg-transparent border border-white/20 px-3 py-1 rounded-full cursor-pointer hover:bg-white/10 transition-colors">
+              <a href="tel:01005708036" className="flex items-center gap-2 font-bold text-sm bg-transparent border border-white/20 px-3 py-1 rounded-full cursor-pointer hover:bg-white/10 transition-colors">
                 <Phone className="w-3 h-3" />
                 CALL US
-              </div>
+              </a>
             </div>
           </div>
 
@@ -102,7 +102,7 @@ export async function Footer() {
       
       {/* Floating WhatsApp */}
       <a 
-        href="https://wa.me/" 
+        href="https://wa.me/201005708036" 
         className="fixed bottom-6 left-6 bg-[#25d366] text-white p-3 rounded-full shadow-lg hover:bg-[#20bd5a] transition-colors z-50 flex items-center gap-2"
         target="_blank"
         rel="noreferrer"

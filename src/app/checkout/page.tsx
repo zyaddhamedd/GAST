@@ -171,7 +171,7 @@ export default function CheckoutPage() {
                     onChange={handleInputChange}
                     className={`w-full px-4 py-3 rounded-xl border ${errors.phone ? 'border-red-500 bg-red-50 focus:ring-red-500' : 'border-gray-200 bg-gray-50 focus:border-brand-blue focus:ring-brand-blue'} focus:outline-none focus:ring-1 transition-colors text-left`}
                     dir="ltr"
-                    placeholder="01xxxxxxxxx"
+                    placeholder="01005708036"
                   />
                   {errors.phone && <p className="text-red-500 text-xs mt-1 font-medium text-right">{errors.phone}</p>}
                 </div>
