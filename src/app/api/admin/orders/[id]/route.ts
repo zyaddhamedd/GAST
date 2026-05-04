@@ -23,9 +23,8 @@ export const PATCH = withAdminProtection(async (session, request, { params }) =>
     }
 
     // Validate if status is strictly one of the valid enum values
-    const validStatuses: OrderStatus[] = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED'];
-    if (!validStatuses.includes(status as OrderStatus)) {
-      return new NextResponse('Invalid status value. Allowed: PENDING, CONFIRMED, SHIPPED, DELIVERED', { status: 400 });
+    if (!Object.values(OrderStatus).includes(status as OrderStatus)) {
+      return new NextResponse(`Invalid status value. Allowed: ${Object.values(OrderStatus).join(', ')}`, { status: 400 });
     }
 
     const order = await prisma.order.update({
