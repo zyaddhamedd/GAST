@@ -32,10 +32,10 @@ export default async function Home() {
           {/* Text Content */}
           <div className="w-full md:w-1/2 p-6 md:p-16 flex flex-col items-center md:items-start text-center md:text-right">
             <h2 className="text-base md:text-sm font-bold text-gray-800 leading-relaxed mb-6">
-              منذ بدايتنا، وضعنا في "هولمن" هدفاً واضحاً: تقديم مضخات مياه تجمع بين الكفاءة العالية والتكنولوجيا الألمانية الأصيلة.
+              منذ بدايتنا، وضعنا في "هولمن" هدفاً واضحاً: تقديم مضخات مياه تجمع بين الكفاءة العالية والتكنولوجيا الإيطالية الأصيلة.
             </h2>
             <h3 className="text-2xl md:text-lg font-black text-brand-blue mb-6 md:mb-4">
-              هولمن تكنولوجيا ألمانية تُحرّك المياه
+              هولمن تكنولوجيا إيطالية تُحرّك المياه
             </h3>
             <p className="text-base md:text-sm text-gray-600 mb-6 leading-relaxed">
               نحن لا نصنع مضخات فحسب، بل نصنع حلولاً متكاملة لضخ المياه في المنازل والمصانع والمزارع، تُصمم لتعمل بثبات تحت أصعب الظروف، وتدوم لسنوات طويلة.

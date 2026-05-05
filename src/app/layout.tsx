@@ -22,22 +22,24 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "GAST - Holmen | مضخات مياه بتكنولوجيا ألمانية",
-  description: "اكتشف مجموعة مضخات هولمن (HOLMEN) بتكنولوجيا ألمانية أصلية. حلول ضخ مياه متكاملة للمنازل والمزارع والمشاريع الصناعية بضمان 5 سنوات.",
-  keywords: ["مضخات مياه", "هولمن", "مضخات ألمانية", "GAST", "طلمبات مياه", "مواتير مياه"],
+  title: "GAST - Holmen | مضخات مياه بتكنولوجيا إيطالية",
+  description: "اكتشف مجموعة مضخات هولمن (HOLMEN) بتكنولوجيا إيطالية أصلية. حلول ضخ مياه متكاملة للمنازل والمزارع والمشاريع الصناعية بضمان 5 سنوات.",
+  keywords: ["مضخات مياه", "هولمن", "مضخات إيطالية", "GAST", "طلمبات مياه", "مواتير مياه"],
   authors: [{ name: "GAST Technology" }],
   openGraph: {
-    title: "GAST - Holmen | تكنولوجيا ألمانية تُحرّك المياه",
-    description: "أقوى مضخات المياه في مصر بتكنولوجيا ألمانية وضمان 5 سنوات.",
-    url: "https://gast-egypt.com",
-    siteName: "GAST",
+    title: "GAST - Holmen | تكنولوجيا إيطالية تُحرّك المياه",
+    description: "أقوى مضخات المياه في مصر بتكنولوجيا إيطالية وضمان 5 سنوات.",
+    url: "https://gast-water.com",
+    siteName: "GAST - Holmen",
     locale: "ar_EG",
     type: "website",
+    images: ["/og-image.jpg"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "GAST - Holmen | مضخات مياه بتكنولوجيا ألمانية",
-    description: "أقوى مضخات المياه في مصر بتكنولوجيا ألمانية وضمان 5 سنوات.",
+    title: "GAST - Holmen | مضخات مياه بتكنولوجيا إيطالية",
+    description: "أقوى مضخات المياه في مصر بتكنولوجيا إيطالية وضمان 5 سنوات.",
+    images: ["/og-image.jpg"],
   },
   robots: {
     index: true,

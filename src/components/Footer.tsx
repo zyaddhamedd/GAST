@@ -14,10 +14,10 @@ export async function Footer() {
           <div className="flex flex-col items-start col-span-1">
             <Link href="/" className="flex flex-col items-start mb-6">
               <span className="text-white text-3xl font-black tracking-widest leading-none font-serif uppercase">GAST</span>
-              <span className="text-white text-[10px] font-bold tracking-widest mt-1 uppercase">Made in Germany</span>
+              <span className="text-white text-[10px] font-bold tracking-widest mt-1 uppercase">Made in Italy</span>
             </Link>
             <h3 className="text-3xl font-bold mb-4 leading-snug">
-              تكنولوجيا ألمانية<br />تُحرّك المياه بثقة
+              تكنولوجيا إيطالية<br />تُحرّك المياه بثقة
             </h3>
             <p className="text-sm text-gray-300 font-medium mt-4">
               تمنح GAST ضماناً حقيقياً لمدة 5 سنوات
