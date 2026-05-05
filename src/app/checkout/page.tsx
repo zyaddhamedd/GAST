@@ -37,6 +37,8 @@ export default function CheckoutPage() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
         setUploadError("حجم الصورة كبير جداً، الحد الأقصى 5 ميجا بايت");
         return;
       }
