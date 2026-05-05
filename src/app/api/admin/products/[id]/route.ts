@@ -85,8 +85,11 @@ export const PATCH = withAdminProtection(async (session, request, { params }) =>
       },
     });
 
-    revalidateTag('products', 'max');
-    revalidateTag(`product-${productId}`, 'max');
+    const { revalidatePath } = await import('next/cache');
+    revalidateTag('products');
+    revalidateTag(`product-slug-${product.slug}`);
+    revalidatePath(`/product/${product.slug}`);
+    revalidatePath('/shop');
     return NextResponse.json(product);
   } catch (error) {
     console.error('[ADMIN_PRODUCT_PATCH]', error);
@@ -126,9 +129,12 @@ export const DELETE = withAdminProtection(async (session, request, { params }) =
       },
     });
 
-    revalidateTag('products', 'max');
-    revalidateTag(`product-${productId}`, 'max');
-    revalidateTag('admin-stats', 'max');
+    const { revalidatePath } = await import('next/cache');
+    revalidateTag('products');
+    revalidateTag(`product-slug-${product.slug}`);
+    revalidateTag('admin-stats');
+    revalidatePath(`/product/${product.slug}`);
+    revalidatePath('/shop');
     return NextResponse.json(deletedProduct);
   } catch (error) {
     console.error('[ADMIN_PRODUCT_DELETE]', error);

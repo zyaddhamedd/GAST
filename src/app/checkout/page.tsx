@@ -37,13 +37,6 @@ export default function CheckoutPage() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setUploadError(null);
-      if (!file.type.startsWith('image/')) {
-        setUploadError("يرجى اختيار ملف صورة صالح (PNG, JPG, WebP)");
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
         setUploadError("حجم الصورة كبير جداً، الحد الأقصى 5 ميجا بايت");
         return;
       }
@@ -330,7 +323,7 @@ export default function CheckoutPage() {
                     <p className="text-sm text-gray-500">تحويل سريع ومباشر</p>
                   </div>
                   <div className="w-10 h-10 bg-brand-blue/5 rounded-lg flex items-center justify-center">
-                    <SafeImage src="/assets/instapay-logo.webp" alt="Instapay" width={32} height={32} className="object-contain" />
+                    <SafeImage src="/assets/main logo.webp" alt="Instapay" width={32} height={32} className="object-contain opacity-50" />
                   </div>
                 </label>
 

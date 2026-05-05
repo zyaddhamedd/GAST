@@ -36,6 +36,13 @@ export default function CategoriesPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check for large files (> 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('تحذير: هذه الصورة حجمها كبير جداً (أكبر من 5 ميجابايت). يرجى اختيار صورة أصغر للحفاظ على أداء الموقع.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     setUploading(true);
     try {
       const fd = new FormData();

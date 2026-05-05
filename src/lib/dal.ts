@@ -140,7 +140,7 @@ export const getProductBySlug = cache(async (slug: string) => {
       };
     },
     [`product-slug-${slug}`],
-    { revalidate: 600, tags: [`product-slug-${slug}`] }
+    { revalidate: 60, tags: [`product-slug-${slug}`] }
   )();
 });
 

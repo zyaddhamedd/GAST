@@ -31,10 +31,20 @@ export const POST = withAdminProtection(async (session, request) => {
         return new NextResponse('Missing required fields', { status: 400 });
       }
 
+      let finalSlug = slugify(name);
+      
+      const existingProduct = await prisma.product.findUnique({
+        where: { slug: finalSlug }
+      });
+      
+      if (existingProduct) {
+        finalSlug = `${finalSlug}-${Math.random().toString(36).substring(2, 5)}`;
+      }
+
       const product = await prisma.product.create({
         data: {
           name,
-          slug: slugify(name),
+          slug: finalSlug,
           subtitle,
           description,
           price: parseFloat(price),
@@ -57,8 +67,8 @@ export const POST = withAdminProtection(async (session, request) => {
         },
       });
 
-      revalidateTag('products', 'max');
-      revalidateTag('admin-stats', 'max');
+      revalidateTag('products');
+      revalidateTag('admin-stats');
       return NextResponse.json(product, { status: 201 });
     } catch (error) {
       console.error('[PRODUCTS_POST]', error);

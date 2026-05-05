@@ -71,6 +71,17 @@ export function EditProductClient({ initialProduct, categories }: EditProductCli
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
+
+    // Check for large files (> 5MB)
+    const largeFiles = files.filter(f => f.size > 5 * 1024 * 1024);
+    if (largeFiles.length > 0) {
+      const proceed = confirm(`تحذير: أنت تحاول رفع ${largeFiles.length} صور بحجم كبير (أكبر من 5 ميجابايت). هذا قد يستغرق وقتاً طويلاً ويؤثر على استقرار الموقع. هل تريد الاستمرار؟`);
+      if (!proceed) {
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+    }
+
     setUploading(true);
     try {
       const results = await Promise.all(
