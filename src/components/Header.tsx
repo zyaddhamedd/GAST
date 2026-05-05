@@ -34,18 +34,10 @@ export async function Header() {
 
           {/* Center: Massive Optimized Logo */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60]">
-            <Link href="/" className="flex items-center justify-center active:scale-90 transition-all duration-300 hover:scale-115">
-              <div className="relative h-16 md:h-20 lg:h-24 w-40 md:w-56 lg:w-64">
-                <SafeImage 
-                  src="/assets/HEROHEADER.webp" 
-                  alt="GAST Logo" 
-                  fill
-                  sizes="(max-width: 768px) 160px, (max-width: 1024px) 220px, 256px"
-                  className="object-contain transition-all duration-500 hover:scale-110 drop-shadow-sm"
-                  priority
-                />
-
-              </div>
+            <Link href="/" className="flex items-center justify-center active:scale-90 transition-all duration-300 hover:scale-110 group">
+              <span className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tighter text-brand-blue uppercase italic font-serif drop-shadow-sm group-hover:text-[#ff6a00] transition-colors duration-300">
+                GAST
+              </span>
             </Link>
           </div>
 
