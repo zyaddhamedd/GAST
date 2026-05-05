@@ -21,7 +21,7 @@ export default function CheckoutPage() {
     city: "",
     address: "",
   });
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMethod, setPaymentMethod] = useState("COD");
   const [paymentImage, setPaymentImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -303,11 +303,11 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-bold text-brand-blue mb-6 border-b border-gray-100 pb-4">3. طريقة الدفع</h2>
               
               <div className="space-y-4">
-                <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'cod' ? 'border-[#ff6a00] bg-orange-50/50 ring-1 ring-[#ff6a00]' : 'border-gray-200 hover:border-gray-300'}`}>
+                <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${paymentMethod === 'COD' ? 'border-[#ff6a00] bg-orange-50/50 ring-1 ring-[#ff6a00]' : 'border-gray-200 hover:border-gray-300'}`}>
                   <div className="relative flex items-center justify-center w-6 h-6 border-2 rounded-full mr-0 ml-4 border-[#ff6a00]">
-                    {paymentMethod === 'cod' && <div className="w-3 h-3 bg-[#ff6a00] rounded-full"></div>}
+                    {paymentMethod === 'COD' && <div className="w-3 h-3 bg-[#ff6a00] rounded-full"></div>}
                   </div>
-                  <input type="radio" name="payment" value="cod" className="hidden" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} />
+                  <input type="radio" name="payment" value="COD" className="hidden" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} />
                   <div className="flex-1">
                     <h3 className="font-bold text-brand-blue">الدفع عند الاستلام</h3>
                     <p className="text-sm text-gray-500">ادفع نقداً عند استلام طلبك</p>
