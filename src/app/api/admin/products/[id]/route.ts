@@ -86,8 +86,8 @@ export const PATCH = withAdminProtection(async (session, request, { params }) =>
     });
 
     const { revalidatePath } = await import('next/cache');
-    revalidateTag('products', 'page');
-    revalidateTag(`product-slug-${product.slug}`, 'page');
+    revalidateTag('products', 'max');
+    revalidateTag(`product-slug-${product.slug}`, 'max');
     revalidatePath(`/product/${product.slug}`);
     revalidatePath('/shop');
     return NextResponse.json(product);
@@ -130,9 +130,9 @@ export const DELETE = withAdminProtection(async (session, request, { params }) =
     });
 
     const { revalidatePath } = await import('next/cache');
-    revalidateTag('products', 'page');
-    revalidateTag(`product-slug-${product.slug}`, 'page');
-    revalidateTag('admin-stats', 'page');
+    revalidateTag('products', 'max');
+    revalidateTag(`product-slug-${product.slug}`, 'max');
+    revalidateTag('admin-stats', 'max');
     revalidatePath(`/product/${product.slug}`);
     revalidatePath('/shop');
     return NextResponse.json(deletedProduct);

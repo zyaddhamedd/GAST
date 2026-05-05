@@ -33,7 +33,7 @@ export const POST = withAdminProtection(async (session, request) => {
         } as any,
       });
 
-      revalidateTag('categories', 'page');
+      revalidateTag('categories', 'max');
       return NextResponse.json(category, { status: 201 });
     } catch (error) {
       console.error('[CATEGORIES_POST]', error);
