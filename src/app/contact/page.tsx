@@ -56,8 +56,7 @@ export default function ContactPage() {
       {/* Hero Section */}
       <section className="relative h-[35vh] md:h-[45vh] min-h-[300px] md:min-h-[350px] w-full flex items-center justify-center overflow-hidden bg-brand-blue">
         <div className="absolute inset-0 opacity-20">
-          <SafeImage src="/assets/heronew1.webp" alt="Contact Bg" fill className="object-cover blur-sm" />
-
+          <SafeImage src="/assets/contact-hero.png" alt="Contact GAST" fill className="object-cover" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-brand-blue/80 to-brand-blue"></div>
         <div className="relative z-10 text-center px-4 animate-fade-in max-w-4xl mx-auto">
