@@ -87,8 +87,8 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="relative h-[65vh] min-h-[500px] w-full overflow-hidden flex items-center justify-center">
         <SafeImage 
-          src="/assets/معلومات عنا.webp" 
-          alt="About GAST" 
+          src="/assets/about-hero-italy.png" 
+          alt="About GAST Italy" 
           fill 
           className="object-cover"
           priority
@@ -111,8 +111,8 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className={`relative h-[450px] md:h-[600px] rounded-[2rem] overflow-hidden shadow-2xl transition-all duration-1000 transform ${isPageLoaded ? "translate-x-0 opacity-100" : "translate-x-20 opacity-0"}`}>
              <SafeImage 
-              src="/assets/معلومات عنا2.webp" 
-              alt="GAST Technology" 
+              src="/assets/about-italy.png" 
+              alt="GAST Italy Headquarters" 
               fill 
               className="object-cover hover:scale-110 transition-transform duration-1000"
             />
