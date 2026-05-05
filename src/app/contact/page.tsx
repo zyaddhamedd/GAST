@@ -55,10 +55,10 @@ export default function ContactPage() {
     <div className="min-h-screen bg-white" dir="rtl">
       {/* Hero Section */}
       <section className="relative h-[35vh] md:h-[45vh] min-h-[300px] md:min-h-[350px] w-full flex items-center justify-center overflow-hidden bg-brand-blue">
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-60">
           <SafeImage src="/assets/contact-hero.png" alt="Contact GAST" fill className="object-cover" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-blue/80 to-brand-blue"></div>
+        <div className="absolute inset-0 bg-brand-blue/40"></div>
         <div className="relative z-10 text-center px-4 animate-fade-in max-w-4xl mx-auto">
           <h1 className="text-3xl md:text-7xl font-extrabold text-white mb-4 md:mb-6 drop-shadow-2xl">تواصل معنا</h1>
           <p className="text-lg md:text-2xl text-gray-200 font-medium max-w-2xl mx-auto leading-relaxed">
