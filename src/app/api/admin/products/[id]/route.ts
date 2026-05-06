@@ -86,8 +86,8 @@ export const PATCH = withAdminProtection(async (session, request, { params }) =>
     });
 
     const { revalidatePath } = await import('next/cache');
-    revalidateTag('products', 'max');
-    revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`, 'max');
+    revalidateTag('products');
+    revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`);
     revalidatePath(`/product/${encodeURIComponent(product.slug.normalize('NFC'))}`);
     revalidatePath('/shop');
     return NextResponse.json(product);
@@ -130,9 +130,9 @@ export const DELETE = withAdminProtection(async (session, request, { params }) =
     });
 
     const { revalidatePath } = await import('next/cache');
-    revalidateTag('products', 'max');
-    revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`, 'max');
-    revalidateTag('admin-stats', 'max');
+    revalidateTag('products');
+    revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`);
+    revalidateTag('admin-stats');
     revalidatePath(`/product/${encodeURIComponent(product.slug.normalize('NFC'))}`);
     revalidatePath('/shop');
     return NextResponse.json(deletedProduct);

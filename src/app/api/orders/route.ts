@@ -95,7 +95,7 @@ export async function POST(request: Request) {
         }
       });
 
-      revalidateTag('admin-stats', 'max');
+      revalidateTag('admin-stats');
 
       return NextResponse.json(order, { status: 201 });
     } catch (error) {

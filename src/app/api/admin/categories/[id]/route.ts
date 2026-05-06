@@ -50,8 +50,8 @@ export const DELETE = withAdminProtection(async (session, request, { params }) =
       },
     });
 
-    revalidateTag('categories', 'max');
-    revalidateTag('products', 'max');
+    revalidateTag('categories');
+    revalidateTag('products');
     return NextResponse.json(deletedCategory);
   } catch (error) {
     console.error('[ADMIN_CATEGORY_DELETE]', error);

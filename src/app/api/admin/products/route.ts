@@ -67,9 +67,9 @@ export const POST = withAdminProtection(async (session, request) => {
         },
       });
 
-      revalidateTag('products', 'max');
-      revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`, 'max');
-      revalidateTag('admin-stats', 'max');
+      revalidateTag('products');
+      revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`);
+      revalidateTag('admin-stats');
       return NextResponse.json(product, { status: 201 });
     } catch (error) {
       console.error('[PRODUCTS_POST]', error);

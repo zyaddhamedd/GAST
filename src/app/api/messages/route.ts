@@ -23,7 +23,7 @@ export async function POST(request: Request) {
         } as any,
       });
 
-      revalidateTag('admin-stats', 'max');
+      revalidateTag('admin-stats');
 
       return NextResponse.json(newMessage, { status: 201 });
     } catch (error) {
