@@ -29,8 +29,8 @@ export const getShopProducts = cache(async (params: {
   page?: number;
   itemsPerPage?: number;
 }) => {
-  const cacheKey = `shop-products-${JSON.stringify(params)}`;
-
+  const cacheKey = `shop-products-${encodeURIComponent(JSON.stringify(params))}`;
+  
   return unstable_cache(
     async () => {
       const { prisma } = await import("./prisma");
@@ -38,8 +38,9 @@ export const getShopProducts = cache(async (params: {
       const where: any = {};
 
       if (category && category !== "all") {
-        const nfcSlug = category.normalize('NFC');
-        const nfdSlug = category.normalize('NFD');
+        const cleanSlug = category.trim();
+        const nfcSlug = cleanSlug.normalize('NFC');
+        const nfdSlug = cleanSlug.normalize('NFD');
         where.category = {
           slug: { in: [nfcSlug, nfdSlug] }
         };

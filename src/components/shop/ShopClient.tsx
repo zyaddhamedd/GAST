@@ -76,6 +76,7 @@ export function ShopClient({
 
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
+      const oldParamsString = params.toString();
       
       if (searchQuery) params.set("search", searchQuery);
       else params.delete("search");
@@ -99,7 +100,10 @@ export function ShopClient({
       // Reset page when filters change
       params.set("page", "1");
 
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      // Only push if params actually changed
+      if (params.toString() !== oldParamsString) {
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      }
     }, 500);
 
     return () => clearTimeout(timer);
