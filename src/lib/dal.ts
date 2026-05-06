@@ -29,7 +29,7 @@ export const getShopProducts = cache(async (params: {
   page?: number;
   itemsPerPage?: number;
 }) => {
-  const cacheKey = `shop-products-${encodeURIComponent(JSON.stringify(params))}`;
+  const cacheKey = `shop-products-${JSON.stringify(params)}`;
   
   return unstable_cache(
     async () => {
