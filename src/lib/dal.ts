@@ -164,3 +164,50 @@ export const getProductById = cache(async (id: number) => {
     { revalidate: 600, tags: [`product-id-${id}`] }
   )();
 });
+
+export const getAdminStats = cache(async () => {
+  return unstable_cache(
+    async () => {
+      const [products, orders, messages] = await Promise.all([
+        prisma.product.count(),
+        prisma.order.count(),
+        prisma.message.count(),
+      ]);
+      return { products, orders, messages };
+    },
+    ['admin-stats'],
+    { revalidate: 300, tags: ['admin-stats'] }
+  )();
+});
+
+export const getRelatedProducts = cache(async (categoryId: number, productId: number) => {
+  return unstable_cache(
+    async () => {
+      const products = await prisma.product.findMany({
+        where: {
+          categoryId,
+          id: { not: productId },
+        },
+        take: 4,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          subtitle: true,
+          price: true,
+          oldPrice: true,
+          discount: true,
+          images: { select: { url: true }, take: 1 },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return products.map((p: any) => ({
+        ...p,
+        image: p.images?.[0]?.url ? normalizeImagePath(p.images[0].url) : "/placeholder.webp",
+      }));
+    },
+    [`related-${categoryId}-${productId}`],
+    { revalidate: 3600, tags: ['products'] }
+  )();
+});
