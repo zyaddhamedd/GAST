@@ -60,11 +60,20 @@ export function ShopClient({
   const [inStockOnly, setInStockOnly] = useState(searchParams.get("inStock") === "true");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  const selectedCategorySlug = searchParams.get("category") || "all";
-  const selectedCategoryName = categories.find(c => c.slug === selectedCategorySlug)?.name || "all";
+  const selectedCategorySlug = (searchParams.get("category") || "all").normalize('NFC');
+  const selectedCategoryName = categories.find(c => c.slug.normalize('NFC') === selectedCategorySlug)?.name || "all";
+
+  // Use a ref to track if it's the first render to avoid immediate redirect
+  const isInitialMount = useRef(true);
 
   // Debounced update for filters
   useEffect(() => {
+    // Skip the very first run to avoid stripping URL params on mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     const timer = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
       
@@ -83,6 +92,10 @@ export function ShopClient({
       if (inStockOnly) params.set("inStock", "true");
       else params.delete("inStock");
 
+      // Preserve category if it exists in current searchParams
+      const currentCat = searchParams.get("category");
+      if (currentCat) params.set("category", currentCat);
+
       // Reset page when filters change
       params.set("page", "1");
 
@@ -93,9 +106,10 @@ export function ShopClient({
   }, [searchQuery, selectedPower, selectedVoltage, priceRange, inStockOnly, pathname, router, searchParams]);
 
   const handleCategoryChange = (slug: string) => {
+    const normalizedSlug = slug.normalize('NFC');
     const params = new URLSearchParams(searchParams.toString());
-    if (slug === "all") params.delete("category");
-    else params.set("category", slug);
+    if (normalizedSlug === "all") params.delete("category");
+    else params.set("category", normalizedSlug);
     params.set("page", "1");
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };

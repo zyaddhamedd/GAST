@@ -37,7 +37,7 @@ export const getShopProducts = cache(async (params: {
       const where: any = {};
 
       if (category && category !== "all") {
-        where.category = { slug: category };
+        where.category = { slug: category.normalize('NFC') };
       }
 
       if (search) {
