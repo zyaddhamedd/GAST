@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import SafeImage from "@/components/SafeImage";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ProductCard } from "@/components/ProductCard";
@@ -51,7 +51,7 @@ export function ShopClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const isInitialMount = useRef(true);
+  const isFirstRender = useRef(true);
 
   // Sync state with URL only on mount or when specific filters change
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
@@ -61,13 +61,13 @@ export function ShopClient({
   const [inStockOnly, setInStockOnly] = useState(searchParams.get("inStock") === "true");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  const selectedCategorySlug = (searchParams.get("category") || "all").normalize('NFC');
+  const selectedCategorySlug = searchParams.get("category") || "all";
 
   // Debounced update for filters
   useEffect(() => {
-    // Prevent the first run to avoid redundant redirects on initial load
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
+    // PREVENT HYDRATION OVERRIDE BUG
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
       return;
     }
 
@@ -93,7 +93,6 @@ export function ShopClient({
       // Reset page when filters change
       params.set("page", "1");
 
-      // Only push if the query string actually changed to prevent infinite loops
       if (params.toString() !== oldParamsString) {
         router.push(`${pathname}?${params.toString()}`, { scroll: false });
       }
@@ -104,11 +103,8 @@ export function ShopClient({
 
   const handleCategoryChange = (slug: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    const normalizedSlug = slug.normalize('NFC');
-    
-    if (normalizedSlug === "all") params.delete("category");
-    else params.set("category", normalizedSlug);
-    
+    if (slug === "all") params.delete("category");
+    else params.set("category", slug);
     params.set("page", "1");
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
@@ -157,7 +153,7 @@ export function ShopClient({
                 key={cat.id}
                 onClick={() => handleCategoryChange(cat.slug)}
                 className={`flex-shrink-0 w-24 md:w-auto group relative rounded-xl overflow-hidden aspect-[1/1] md:aspect-[4/3] flex flex-col items-center justify-center border-2 transition-all duration-300 ${
-                  selectedCategorySlug === cat.slug.normalize('NFC')
+                  selectedCategorySlug === cat.slug
                     ? "border-[#ff6a00] bg-[#fff7ed] shadow-md ring-2 ring-[#ff6a00]/10"
                     : "border-transparent bg-gray-50 hover:bg-gray-100 hover:shadow"
                 }`}
@@ -168,21 +164,21 @@ export function ShopClient({
                     alt={cat.name}
                     fill
                     className={`object-contain p-1 md:p-2 group-hover:scale-110 transition-transform duration-500 ${
-                      selectedCategorySlug === cat.slug.normalize('NFC') ? "opacity-100" : "opacity-80 group-hover:opacity-100"
+                      selectedCategorySlug === cat.slug ? "opacity-100" : "opacity-80 group-hover:opacity-100"
                     }`}
                     sizes="(max-width: 768px) 100px, 150px"
                   />
                 </div>
                 <div
                   className={`absolute inset-x-0 bottom-0 bg-gradient-to-t pt-4 pb-1 md:pb-2 px-1 text-center transition-colors duration-300 ${
-                    selectedCategorySlug === cat.slug.normalize('NFC')
+                    selectedCategorySlug === cat.slug
                       ? "from-[#fff7ed] via-[#fff7ed]/90"
                       : "from-white via-white/80"
                   } to-transparent`}
                 >
                   <span
                     className={`text-[10px] md:text-sm font-bold transition-colors leading-tight ${
-                      selectedCategorySlug === cat.slug.normalize('NFC')
+                      selectedCategorySlug === cat.slug
                         ? "text-[#ff6a00]"
                         : "text-brand-blue group-hover:text-[#ff6a00]"
                     }`}
