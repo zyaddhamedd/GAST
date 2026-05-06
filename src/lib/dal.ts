@@ -3,7 +3,8 @@ import { prisma } from "./prisma";
 import { normalizeImagePath } from "./utils";
 
 /**
- * Data Access Layer (DAL) - Production Fix Mode
+ * Data Access Layer (DAL) - Direct Database Access
+ * Cache disabled for troubleshooting and maximum reliability.
  */
 
 export const getCategories = cache(async () => {
@@ -13,12 +14,13 @@ export const getCategories = cache(async () => {
 
   return categories.map((cat: any) => ({
     ...cat,
+    slug: cat.slug.normalize('NFC'),
     image: normalizeImagePath(cat.image)
   }));
 });
 
 export const getShopProducts = cache(async (params: {
-  category?: string | null;
+  category?: string;
   search?: string;
   minPrice?: number;
   maxPrice?: number;
@@ -30,14 +32,18 @@ export const getShopProducts = cache(async (params: {
   const { category, search, minPrice, maxPrice, power, voltage, page = 1, itemsPerPage = 8 } = params;
   const where: any = {};
 
-  console.log("CATEGORY PARAM:", category);
-
   if (category && category !== "all") {
+    const cleanCategory = category.trim();
+    const nfcSlug = cleanCategory.normalize('NFC');
+    const nfdSlug = cleanCategory.normalize('NFD');
+    const spaceSlug = cleanCategory.replace(/-/g, ' ');
+    const dashSlug = cleanCategory.replace(/ /g, '-');
+
     where.category = {
-      slug: {
-        equals: category,
-        mode: 'insensitive'
-      }
+      OR: [
+        { slug: { in: [nfcSlug, nfdSlug, spaceSlug, dashSlug], mode: 'insensitive' } },
+        { name: { in: [nfcSlug, nfdSlug, spaceSlug, dashSlug], mode: 'insensitive' } }
+      ]
     };
   }
 
@@ -87,8 +93,6 @@ export const getShopProducts = cache(async (params: {
     prisma.product.count({ where }),
   ]);
 
-  console.log("PRODUCT COUNT:", products.length);
-
   const mappedProducts = products.map((p: any) => ({
     ...p,
     rating: (p.id % 2 === 0) ? 5 : 4.5,
@@ -100,8 +104,15 @@ export const getShopProducts = cache(async (params: {
 });
 
 export const getProductBySlug = cache(async (slug: string) => {
+  const normalizedSlug = decodeURIComponent(slug).trim().normalize('NFC');
+  
   const product = await prisma.product.findFirst({
-    where: { slug: { equals: slug, mode: 'insensitive' } },
+    where: { 
+      OR: [
+        { slug: normalizedSlug },
+        { slug: normalizedSlug.normalize('NFD') }
+      ]
+    },
     include: {
       category: { select: { name: true } },
       images: { select: { url: true } },
