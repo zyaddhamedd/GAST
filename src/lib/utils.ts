@@ -22,10 +22,11 @@ export function normalizeImagePath(path?: string) {
 export function slugify(text: string) {
   return text
     .toString()
+    .normalize('NFC')         // Ensure consistent character representation
     .toLowerCase()
     .trim()
     .replace(/\s+/g, '-')     // Replace spaces with -
-    .replace(/[^\w\u0621-\u064A-]+/g, '') // Remove all non-word chars (support Arabic)
+    .replace(/[^\w\u0621-\u064A\u0660-\u0669-]+/g, '') // Support Arabic letters and numbers
     .replace(/--+/g, '-')     // Replace multiple - with single -
     .replace(/^-+/, '')       // Trim - from start of text
     .replace(/-+$/, '');      // Trim - from end of text

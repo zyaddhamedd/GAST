@@ -85,19 +85,37 @@ export const prisma = new Proxy({} as any, {
                 const siteId = getSiteId();
                 if (siteId) {
                   const anyArgs = args as any;
-                  if (['findMany', 'findFirst', 'findUnique', 'findUniqueOrThrow', 'count', 'aggregate', 'groupBy'].includes(operation)) {
+                  let targetOperation = operation;
+
+                  // findUnique/findUniqueOrThrow only allow unique fields in 'where'.
+                  // Since siteId is not part of a compound unique index in most models,
+                  // we convert these to findFirst/findFirstOrThrow to allow filtering by siteId.
+                  if (operation === 'findUnique') {
+                    targetOperation = 'findFirst';
+                  } else if (operation === 'findUniqueOrThrow') {
+                    targetOperation = 'findFirstOrThrow';
+                  }
+
+                  if (['findMany', 'findFirst', 'findFirstOrThrow', 'count', 'aggregate', 'groupBy'].includes(targetOperation)) {
                     anyArgs.where = { ...anyArgs.where, siteId };
                   }
+                  
                   if (['create', 'createMany'].includes(operation)) {
                     if (operation === 'create') anyArgs.data = { ...anyArgs.data, siteId };
                     else if (Array.isArray(anyArgs.data)) anyArgs.data = anyArgs.data.map((d: any) => ({ ...d, siteId }));
                   }
+                  
                   if (['update', 'updateMany', 'delete', 'deleteMany', 'upsert'].includes(operation)) {
                     anyArgs.where = { ...anyArgs.where, siteId };
                     if (operation === 'upsert') {
                       anyArgs.create = { ...anyArgs.create, siteId };
                       anyArgs.update = { ...anyArgs.update, siteId };
                     }
+                  }
+
+                  // If we changed the operation, we need to call the query with the new operation
+                  if (targetOperation !== operation) {
+                    return (prismaInstance[model] as any)[targetOperation](anyArgs);
                   }
                 }
               }
