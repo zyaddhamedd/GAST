@@ -87,8 +87,8 @@ export const PATCH = withAdminProtection(async (session, request, { params }) =>
 
     const { revalidatePath } = await import('next/cache');
     revalidateTag('products', 'max');
-    revalidateTag(`product-slug-${product.slug}`, 'max');
-    revalidatePath(`/product/${product.slug}`);
+    revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`, 'max');
+    revalidatePath(`/product/${encodeURIComponent(product.slug.normalize('NFC'))}`);
     revalidatePath('/shop');
     return NextResponse.json(product);
   } catch (error) {
@@ -131,9 +131,9 @@ export const DELETE = withAdminProtection(async (session, request, { params }) =
 
     const { revalidatePath } = await import('next/cache');
     revalidateTag('products', 'max');
-    revalidateTag(`product-slug-${product.slug}`, 'max');
+    revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`, 'max');
     revalidateTag('admin-stats', 'max');
-    revalidatePath(`/product/${product.slug}`);
+    revalidatePath(`/product/${encodeURIComponent(product.slug.normalize('NFC'))}`);
     revalidatePath('/shop');
     return NextResponse.json(deletedProduct);
   } catch (error) {

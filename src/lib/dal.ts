@@ -14,6 +14,7 @@ export async function getCategories() {
 
   return categories.map((cat: any) => ({
     ...cat,
+    slug: cat.slug.normalize('NFC'),
     image: normalizeImagePath(cat.image)
   }));
 }
@@ -37,7 +38,11 @@ export const getShopProducts = cache(async (params: {
       const where: any = {};
 
       if (category && category !== "all") {
-        where.category = { slug: category.normalize('NFC') };
+        const nfcSlug = category.normalize('NFC');
+        const nfdSlug = category.normalize('NFD');
+        where.category = {
+          slug: { in: [nfcSlug, nfdSlug] }
+        };
       }
 
       if (search) {
@@ -107,10 +112,16 @@ export const getShopProducts = cache(async (params: {
 });
 
 export const getProductBySlug = cache(async (slug: string) => {
+  const normalizedSlug = decodeURIComponent(slug).normalize('NFC');
+  
   return unstable_cache(
     async () => {
-      const product = await prisma.product.findUnique({
-        where: { slug },
+      const nfcSlug = normalizedSlug.normalize('NFC');
+      const nfdSlug = normalizedSlug.normalize('NFD');
+      const product = await prisma.product.findFirst({
+        where: { 
+          slug: { in: [nfcSlug, nfdSlug] }
+        },
         select: {
           id: true,
           name: true,
@@ -139,8 +150,8 @@ export const getProductBySlug = cache(async (slug: string) => {
         images: product.images.map((img: any) => normalizeImagePath(img.url))
       };
     },
-    [`product-slug-${slug}`],
-    { revalidate: 60, tags: [`product-slug-${slug}`] }
+    [`product-slug-${encodeURIComponent(normalizedSlug)}`],
+    { revalidate: 60, tags: [`product-slug-${encodeURIComponent(normalizedSlug)}`] }
   )();
 });
 
