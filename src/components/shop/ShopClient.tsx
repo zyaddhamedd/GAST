@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import SafeImage from "@/components/SafeImage";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ProductCard } from "@/components/ProductCard";
@@ -51,8 +51,9 @@ export function ShopClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const productsRef = useRef<HTMLDivElement>(null);
+  const isInitialMount = useRef(true);
 
+  // Sync state with URL only on mount or when specific filters change
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [selectedPower, setSelectedPower] = useState<string[]>(searchParams.getAll("power") || []);
   const [selectedVoltage, setSelectedVoltage] = useState<string[]>(searchParams.getAll("voltage") || []);
@@ -61,14 +62,10 @@ export function ShopClient({
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const selectedCategorySlug = (searchParams.get("category") || "all").normalize('NFC');
-  const selectedCategoryName = categories.find(c => c.slug.normalize('NFC') === selectedCategorySlug)?.name || "all";
-
-  // Use a ref to track if it's the first render to avoid immediate redirect
-  const isInitialMount = useRef(true);
 
   // Debounced update for filters
   useEffect(() => {
-    // Skip the very first run to avoid stripping URL params on mount
+    // Prevent the first run to avoid redundant redirects on initial load
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
@@ -93,14 +90,10 @@ export function ShopClient({
       if (inStockOnly) params.set("inStock", "true");
       else params.delete("inStock");
 
-      // Preserve category if it exists in current searchParams
-      const currentCat = searchParams.get("category");
-      if (currentCat) params.set("category", currentCat);
-
       // Reset page when filters change
       params.set("page", "1");
 
-      // Only push if params actually changed
+      // Only push if the query string actually changed to prevent infinite loops
       if (params.toString() !== oldParamsString) {
         router.push(`${pathname}?${params.toString()}`, { scroll: false });
       }
@@ -110,10 +103,12 @@ export function ShopClient({
   }, [searchQuery, selectedPower, selectedVoltage, priceRange, inStockOnly, pathname, router, searchParams]);
 
   const handleCategoryChange = (slug: string) => {
-    const normalizedSlug = slug.normalize('NFC');
     const params = new URLSearchParams(searchParams.toString());
+    const normalizedSlug = slug.normalize('NFC');
+    
     if (normalizedSlug === "all") params.delete("category");
     else params.set("category", normalizedSlug);
+    
     params.set("page", "1");
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
@@ -162,7 +157,7 @@ export function ShopClient({
                 key={cat.id}
                 onClick={() => handleCategoryChange(cat.slug)}
                 className={`flex-shrink-0 w-24 md:w-auto group relative rounded-xl overflow-hidden aspect-[1/1] md:aspect-[4/3] flex flex-col items-center justify-center border-2 transition-all duration-300 ${
-                  selectedCategorySlug === cat.slug
+                  selectedCategorySlug === cat.slug.normalize('NFC')
                     ? "border-[#ff6a00] bg-[#fff7ed] shadow-md ring-2 ring-[#ff6a00]/10"
                     : "border-transparent bg-gray-50 hover:bg-gray-100 hover:shadow"
                 }`}
@@ -173,21 +168,21 @@ export function ShopClient({
                     alt={cat.name}
                     fill
                     className={`object-contain p-1 md:p-2 group-hover:scale-110 transition-transform duration-500 ${
-                      selectedCategorySlug === cat.slug ? "opacity-100" : "opacity-80 group-hover:opacity-100"
+                      selectedCategorySlug === cat.slug.normalize('NFC') ? "opacity-100" : "opacity-80 group-hover:opacity-100"
                     }`}
                     sizes="(max-width: 768px) 100px, 150px"
                   />
                 </div>
                 <div
                   className={`absolute inset-x-0 bottom-0 bg-gradient-to-t pt-4 pb-1 md:pb-2 px-1 text-center transition-colors duration-300 ${
-                    selectedCategorySlug === cat.slug
+                    selectedCategorySlug === cat.slug.normalize('NFC')
                       ? "from-[#fff7ed] via-[#fff7ed]/90"
                       : "from-white via-white/80"
                   } to-transparent`}
                 >
                   <span
                     className={`text-[10px] md:text-sm font-bold transition-colors leading-tight ${
-                      selectedCategorySlug === cat.slug
+                      selectedCategorySlug === cat.slug.normalize('NFC')
                         ? "text-[#ff6a00]"
                         : "text-brand-blue group-hover:text-[#ff6a00]"
                     }`}
@@ -201,7 +196,7 @@ export function ShopClient({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={productsRef}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Mobile Filter Toggle */}
           <div className="lg:hidden flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -346,9 +341,9 @@ export function ShopClient({
 
             {initialProducts.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6 transition-all duration-500 ease-in-out">
+                <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6">
                   {initialProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard key={product.id} product={product as any} />
                   ))}
                 </div>
 
@@ -365,7 +360,6 @@ export function ShopClient({
                     
                     {Array.from({ length: totalPages }).map((_, i) => {
                       const page = i + 1;
-                      // Simple logic to show only few pages if totalPages is large
                       if (totalPages > 7 && Math.abs(page - currentPage) > 2 && page !== 1 && page !== totalPages) {
                         if (page === currentPage - 3 || page === currentPage + 3) return <span key={page}>...</span>;
                         return null;
@@ -419,4 +413,3 @@ export function ShopClient({
     </div>
   );
 }
-

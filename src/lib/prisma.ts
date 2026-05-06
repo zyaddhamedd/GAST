@@ -3,66 +3,21 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 /**
- * Prisma Client Singleton with Lazy Extensions
- * Optimized for Next.js 16 and multi-tenant isolation.
+ * Professional Prisma Client Singleton
+ * Features: 
+ * - Multi-tenant isolation via siteId injection
+ * - Automatic conversion of findUnique to findFirst for site-aware lookups
+ * - Recursion-safe implementation
+ * - Lazy initialization for optimal serverless/edge performance
  */
 
 let prismaInstance: any = null;
+let basePrisma: PrismaClient | null = null;
 let pool: Pool | null = null;
 
-async function createClient() {
-  if (!pool) {
-    pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  }
-  const adapter = new PrismaPg(pool);
-  
-  const basePrisma = new PrismaClient({
-    adapter,
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-  });
-
-  return basePrisma.$extends({
-    query: {
-      $allModels: {
-        async $allOperations({ model, operation, args, query }) {
-          const tenantModels = ['Category', 'Product', 'Order', 'Message', 'SiteConfig'];
-          
-          if (tenantModels.includes(model)) {
-            const { getSiteId } = await import('./site-context');
-            const siteId = getSiteId();
-
-            if (siteId) {
-              const anyArgs = args as any;
-              if (['findMany', 'findFirst', 'findUnique', 'findUniqueOrThrow', 'count', 'aggregate', 'groupBy'].includes(operation)) {
-                anyArgs.where = { ...anyArgs.where, siteId };
-              }
-              if (['create', 'createMany'].includes(operation)) {
-                if (operation === 'create') {
-                  anyArgs.data = { ...anyArgs.data, siteId };
-                } else if (Array.isArray(anyArgs.data)) {
-                  anyArgs.data = anyArgs.data.map((d: any) => ({ ...d, siteId }));
-                }
-              }
-              if (['update', 'updateMany', 'delete', 'deleteMany', 'upsert'].includes(operation)) {
-                anyArgs.where = { ...anyArgs.where, siteId };
-                if (operation === 'upsert') {
-                  anyArgs.create = { ...anyArgs.create, siteId };
-                  anyArgs.update = { ...anyArgs.update, siteId };
-                }
-              }
-            }
-          }
-          return query(args);
-        },
-      },
-    },
-  });
-}
-
-// Proxy to handle lazy initialization
 export const prisma = new Proxy({} as any, {
   get(target, prop) {
-    if (prop === 'then') return undefined; // Avoid issues with async/await on the proxy itself
+    if (prop === 'then') return undefined;
     
     if (!prismaInstance) {
       if (!pool) {
@@ -70,7 +25,7 @@ export const prisma = new Proxy({} as any, {
       }
       const adapter = new PrismaPg(pool);
 
-      const basePrisma = new PrismaClient({
+      basePrisma = new PrismaClient({
         adapter,
         log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
       });
@@ -80,29 +35,37 @@ export const prisma = new Proxy({} as any, {
           $allModels: {
             async $allOperations({ model, operation, args, query }) {
               const tenantModels = ['Category', 'Product', 'Order', 'Message', 'SiteConfig'];
+              
               if (tenantModels.includes(model)) {
                 const { getSiteId } = await import('./site-context');
                 const siteId = getSiteId();
+
                 if (siteId) {
                   const anyArgs = args as any;
-                  let targetOperation = operation;
 
-                  // findUnique/findUniqueOrThrow only allow unique fields in 'where'.
-                  // Since siteId is not part of a compound unique index in most models,
-                  // we convert these to findFirst/findFirstOrThrow to allow filtering by siteId.
-                  if (operation === 'findUnique') {
-                    targetOperation = 'findFirst';
-                  } else if (operation === 'findUniqueOrThrow') {
-                    targetOperation = 'findFirstOrThrow';
+                  // 1. Handle findUnique/findUniqueOrThrow conversion to findFirst
+                  // This is necessary because siteId is not part of the primary/unique keys,
+                  // and Prisma findUnique only allows unique fields.
+                  if (operation === 'findUnique' || operation === 'findUniqueOrThrow') {
+                    const targetOp = operation === 'findUnique' ? 'findFirst' : 'findFirstOrThrow';
+                    anyArgs.where = { ...anyArgs.where, siteId };
+                    
+                    // CRITICAL: Call the base client to avoid infinite recursion
+                    return (basePrisma![model as any] as any)[targetOp](anyArgs);
                   }
 
-                  if (['findMany', 'findFirst', 'findFirstOrThrow', 'count', 'aggregate', 'groupBy'].includes(targetOperation)) {
+                  // 2. Inject siteId for Read operations
+                  if (['findMany', 'findFirst', 'count', 'aggregate', 'groupBy'].includes(operation)) {
                     anyArgs.where = { ...anyArgs.where, siteId };
                   }
                   
+                  // 3. Inject siteId for Write operations
                   if (['create', 'createMany'].includes(operation)) {
-                    if (operation === 'create') anyArgs.data = { ...anyArgs.data, siteId };
-                    else if (Array.isArray(anyArgs.data)) anyArgs.data = anyArgs.data.map((d: any) => ({ ...d, siteId }));
+                    if (operation === 'create') {
+                      anyArgs.data = { ...anyArgs.data, siteId };
+                    } else if (Array.isArray(anyArgs.data)) {
+                      anyArgs.data = anyArgs.data.map((d: any) => ({ ...d, siteId }));
+                    }
                   }
                   
                   if (['update', 'updateMany', 'delete', 'deleteMany', 'upsert'].includes(operation)) {
@@ -112,19 +75,17 @@ export const prisma = new Proxy({} as any, {
                       anyArgs.update = { ...anyArgs.update, siteId };
                     }
                   }
-
-                  // If we changed the operation, we need to call the query with the new operation
-                  if (targetOperation !== operation) {
-                    return (prismaInstance[model] as any)[targetOperation](anyArgs);
-                  }
                 }
               }
+              
+              // For all other cases, or if no siteId is present, use standard query
               return query(args);
             },
           },
         },
       });
     }
+
     return prismaInstance[prop];
   },
 });

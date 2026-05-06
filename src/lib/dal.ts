@@ -5,19 +5,26 @@ import { normalizeImagePath } from "./utils";
 
 /**
  * Data Access Layer (DAL)
+ * Optimized for performance and Arabic character consistency (NFC).
  */
 
-export async function getCategories() {
-  const categories = await prisma.category.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+export const getCategories = cache(async () => {
+  return unstable_cache(
+    async () => {
+      const categories = await prisma.category.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
 
-  return categories.map((cat: any) => ({
-    ...cat,
-    slug: cat.slug.normalize('NFC'),
-    image: normalizeImagePath(cat.image)
-  }));
-}
+      return categories.map((cat: any) => ({
+        ...cat,
+        slug: cat.slug.normalize('NFC'),
+        image: normalizeImagePath(cat.image)
+      }));
+    },
+    ['all-categories'],
+    { revalidate: 3600, tags: ['categories'] }
+  )();
+});
 
 export const getShopProducts = cache(async (params: {
   category?: string;
@@ -29,21 +36,19 @@ export const getShopProducts = cache(async (params: {
   page?: number;
   itemsPerPage?: number;
 }) => {
-  const cacheKey = `shop-products-${JSON.stringify(params)}`;
+  const { category, search, minPrice, maxPrice, power, voltage, page = 1, itemsPerPage = 8 } = params;
   
+  // Create a stable cache key using ASCII-safe values
+  const safeCategory = category ? encodeURIComponent(category.normalize('NFC')) : 'all';
+  const cacheKey = `shop-p-${safeCategory}-s-${search || 'none'}-p-${page}`;
+
   return unstable_cache(
     async () => {
-      const { prisma } = await import("./prisma");
-      const { category, search, minPrice, maxPrice, power, voltage, page = 1, itemsPerPage = 8 } = params;
       const where: any = {};
 
       if (category && category !== "all") {
-        const cleanSlug = category.trim();
-        const nfcSlug = cleanSlug.normalize('NFC');
-        const nfdSlug = cleanSlug.normalize('NFD');
-        where.category = {
-          slug: { in: [nfcSlug, nfdSlug] }
-        };
+        // We use NFC as the primary standard for all lookups
+        where.category = { slug: category.trim().normalize('NFC') };
       }
 
       if (search) {
@@ -83,10 +88,7 @@ export const getShopProducts = cache(async (params: {
             voltage: true,
             inStock: true,
             category: { select: { name: true } },
-            images: {
-              select: { url: true },
-              take: 1,
-            },
+            images: { select: { url: true }, take: 1 },
           },
           orderBy: { createdAt: 'desc' },
           skip: (page - 1) * itemsPerPage,
@@ -97,12 +99,9 @@ export const getShopProducts = cache(async (params: {
 
       const mappedProducts = products.map((p: any) => ({
         ...p,
-        rating: (p.id % 2 === 0) ? 5 : 4.5, // Mock rating for UI aesthetics
+        rating: (p.id % 2 === 0) ? 5 : 4.5,
         image: p.images?.[0]?.url ? normalizeImagePath(p.images[0].url) : "/placeholder.webp",
-        images: p.images.map((img: any) => ({
-          ...img,
-          url: normalizeImagePath(img.url)
-        }))
+        category: p.category?.name || "عام",
       }));
 
       return { products: mappedProducts, totalCount };
@@ -113,30 +112,14 @@ export const getShopProducts = cache(async (params: {
 });
 
 export const getProductBySlug = cache(async (slug: string) => {
-  const normalizedSlug = decodeURIComponent(slug).normalize('NFC');
-  
+  const normalizedSlug = decodeURIComponent(slug).trim().normalize('NFC');
+  const safeCacheKey = `product-slug-${encodeURIComponent(normalizedSlug)}`;
+
   return unstable_cache(
     async () => {
-      const nfcSlug = normalizedSlug.normalize('NFC');
-      const nfdSlug = normalizedSlug.normalize('NFD');
       const product = await prisma.product.findFirst({
-        where: { 
-          slug: { in: [nfcSlug, nfdSlug] }
-        },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          subtitle: true,
-          description: true,
-          price: true,
-          oldPrice: true,
-          discount: true,
-          power: true,
-          voltage: true,
-          specs: true,
-          inStock: true,
-          categoryId: true,
+        where: { slug: normalizedSlug },
+        include: {
           category: { select: { name: true } },
           images: { select: { url: true } },
         },
@@ -148,11 +131,12 @@ export const getProductBySlug = cache(async (slug: string) => {
         ...product,
         rating: (product.id % 2 === 0) ? 5 : 4.5,
         image: product.images?.[0]?.url ? normalizeImagePath(product.images[0].url) : "/placeholder.webp",
-        images: product.images.map((img: any) => normalizeImagePath(img.url))
+        images: product.images.map((img: any) => normalizeImagePath(img.url)),
+        categoryName: product.category?.name
       };
     },
-    [`product-slug-${encodeURIComponent(normalizedSlug)}`],
-    { revalidate: 60, tags: [`product-slug-${encodeURIComponent(normalizedSlug)}`] }
+    [safeCacheKey],
+    { revalidate: 60, tags: [safeCacheKey] }
   )();
 });
 
@@ -161,20 +145,7 @@ export const getProductById = cache(async (id: number) => {
     async () => {
       const product = await prisma.product.findUnique({
         where: { id },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          subtitle: true,
-          description: true,
-          price: true,
-          oldPrice: true,
-          discount: true,
-          power: true,
-          voltage: true,
-          specs: true,
-          inStock: true,
-          categoryId: true,
+        include: {
           category: { select: { name: true } },
           images: { select: { url: true } },
         },
@@ -191,61 +162,5 @@ export const getProductById = cache(async (id: number) => {
     },
     [`product-id-${id}`],
     { revalidate: 600, tags: [`product-id-${id}`] }
-  )();
-});
-
-export const getRelatedProducts = cache(async (categoryId: number, excludeId: number, limit = 4) => {
-  return unstable_cache(
-    async () => {
-      const related = await prisma.product.findMany({
-        where: {
-          categoryId,
-          id: { not: excludeId },
-        },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          subtitle: true,
-          price: true,
-          oldPrice: true,
-          discount: true,
-          power: true,
-          voltage: true,
-          inStock: true,
-          category: { select: { name: true } },
-          images: { select: { url: true }, take: 1 },
-        },
-        take: limit,
-      });
-
-      return related.map((p: any) => ({
-        ...p,
-        rating: (p.id % 2 === 0) ? 5 : 4.5, // Mock rating
-        image: p.images?.[0]?.url ? normalizeImagePath(p.images[0].url) : "/placeholder.webp",
-        images: p.images.map((img: any) => ({
-          ...img,
-          url: normalizeImagePath(img.url)
-        }))
-      }));
-    },
-    [`related-${categoryId}-${excludeId}`],
-    { revalidate: 3600, tags: [`related-${categoryId}`] }
-  )();
-});
-
-export const getAdminStats = cache(async () => {
-  return unstable_cache(
-    async () => {
-      const { prisma } = await import("./prisma");
-      const [products, orders, messages] = await Promise.all([
-        prisma.product.count(),
-        prisma.order.count(),
-        prisma.message.count(),
-      ]);
-      return { products, orders, messages };
-    },
-    ['admin-stats'],
-    { revalidate: 60, tags: ['admin-stats'] }
   )();
 });
