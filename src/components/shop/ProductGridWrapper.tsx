@@ -9,6 +9,7 @@ interface ProductGridWrapperProps {
     maxPrice?: string;
     power?: string | string[];
     voltage?: string | string[];
+    inStock?: string;
     page?: string;
   };
   categories: Category[];
@@ -19,6 +20,7 @@ export async function ProductGridWrapper({ searchParams, categories }: ProductGr
   const power = powerStrings?.map(p => parseFloat(p.replace(" HP", ""))).filter(v => !isNaN(v));
   const voltage = typeof searchParams.voltage === 'string' ? [searchParams.voltage] : searchParams.voltage;
   const page = parseInt(searchParams.page || "1");
+  const inStock = searchParams.inStock === "true";
 
   const data = await getShopProducts({
     category: searchParams.category,
@@ -27,6 +29,7 @@ export async function ProductGridWrapper({ searchParams, categories }: ProductGr
     maxPrice: searchParams.maxPrice ? parseInt(searchParams.maxPrice) : undefined,
     power,
     voltage,
+    inStock,
     page,
   });
 

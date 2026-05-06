@@ -16,6 +16,7 @@ export default async function ShopPage({
     maxPrice?: string; 
     power?: string | string[]; 
     voltage?: string | string[];
+    inStock?: string;
     page?: string;
   }>;
 }) {

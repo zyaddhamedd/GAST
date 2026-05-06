@@ -33,14 +33,15 @@ export const getShopProducts = cache(async (params: {
   maxPrice?: number;
   power?: number[];
   voltage?: string[];
+  inStock?: boolean;
   page?: number;
   itemsPerPage?: number;
 }) => {
-  const { category, search, minPrice, maxPrice, power, voltage, page = 1, itemsPerPage = 8 } = params;
+  const { category, search, minPrice, maxPrice, power, voltage, inStock, page = 1, itemsPerPage = 8 } = params;
   
   // Create a stable cache key using ASCII-safe values
   const safeCategory = category ? encodeURIComponent(category.normalize('NFC')) : 'all';
-  const cacheKey = `shop-p-${safeCategory}-s-${search || 'none'}-p-${page}`;
+  const cacheKey = `shop-p-${safeCategory}-s-${search || 'none'}-p-${page}-stock-${inStock ? '1' : '0'}`;
 
   return unstable_cache(
     async () => {
@@ -71,6 +72,10 @@ export const getShopProducts = cache(async (params: {
 
       if (voltage && voltage.length > 0) {
         where.voltage = { in: voltage };
+      }
+
+      if (inStock === true) {
+        where.inStock = true;
       }
 
       const [products, totalCount] = await Promise.all([
