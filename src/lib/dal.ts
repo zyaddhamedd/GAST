@@ -47,8 +47,18 @@ export const getShopProducts = cache(async (params: {
       const where: any = {};
 
       if (category && category !== "all") {
-        // We use NFC as the primary standard for all lookups
-        where.category = { slug: category.trim().normalize('NFC') };
+        const cleanCategory = category.trim();
+        const nfcSlug = cleanCategory.normalize('NFC');
+        const nfdSlug = cleanCategory.normalize('NFD');
+        const spaceSlug = cleanCategory.replace(/-/g, ' '); // Try replacing dashes with spaces
+        const dashSlug = cleanCategory.replace(/ /g, '-');  // Try replacing spaces with dashes
+
+        where.category = {
+          OR: [
+            { slug: { in: [nfcSlug, nfdSlug, spaceSlug, dashSlug], mode: 'insensitive' } },
+            { name: { in: [nfcSlug, nfdSlug, spaceSlug, dashSlug], mode: 'insensitive' } }
+          ]
+        };
       }
 
       if (search) {
@@ -107,7 +117,7 @@ export const getShopProducts = cache(async (params: {
       return { products: mappedProducts, totalCount };
     },
     [cacheKey],
-    { revalidate: 300, tags: ['products'] }
+    { revalidate: 10, tags: ['products'] }
   )();
 });
 
