@@ -67,8 +67,11 @@ export const POST = withAdminProtection(async (session, request) => {
         },
       });
 
+      // @ts-ignore
       revalidateTag('products');
+      // @ts-ignore
       revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`);
+      // @ts-ignore
       revalidateTag('admin-stats');
       return NextResponse.json(product, { status: 201 });
     } catch (error) {

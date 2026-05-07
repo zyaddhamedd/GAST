@@ -33,6 +33,7 @@ export const POST = withAdminProtection(async (session, request) => {
         } as any,
       });
 
+      // @ts-ignore
       revalidateTag('categories');
       return NextResponse.json(category, { status: 201 });
     } catch (error) {

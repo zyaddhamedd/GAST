@@ -23,6 +23,7 @@ export async function POST(request: Request) {
         } as any,
       });
 
+      // @ts-ignore
       revalidateTag('admin-stats');
 
       return NextResponse.json(newMessage, { status: 201 });

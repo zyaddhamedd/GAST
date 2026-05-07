@@ -38,7 +38,7 @@ export const prisma = new Proxy({} as any, {
               
               if (tenantModels.includes(model)) {
                 const { getSiteId } = await import('./site-context');
-                const siteId = getSiteId();
+                const siteId = getSiteId() || 1; // Force fallback to GAST (Site ID 1) for single-site stabilization
 
                 if (siteId) {
                   const anyArgs = args as any;

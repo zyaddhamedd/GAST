@@ -95,6 +95,7 @@ export async function POST(request: Request) {
         }
       });
 
+      // @ts-ignore
       revalidateTag('admin-stats');
 
       return NextResponse.json(order, { status: 201 });

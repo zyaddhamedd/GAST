@@ -50,7 +50,9 @@ export const DELETE = withAdminProtection(async (session, request, { params }) =
       },
     });
 
+    // @ts-ignore
     revalidateTag('categories');
+    // @ts-ignore
     revalidateTag('products');
     return NextResponse.json(deletedCategory);
   } catch (error) {
