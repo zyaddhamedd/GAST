@@ -59,7 +59,7 @@ export function ShopClient({
   const [selectedVoltage, setSelectedVoltage] = useState<string[]>(searchParams.getAll("voltage") || []);
   const [priceRange, setPriceRange] = useState<number>(parseInt(searchParams.get("maxPrice") || "20000"));
   const [inStockOnly, setInStockOnly] = useState(searchParams.get("inStock") === "true");
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const selectedCategorySlug = (searchParams.get("category") || "all").normalize('NFC');
 

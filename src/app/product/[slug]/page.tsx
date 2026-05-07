@@ -11,7 +11,7 @@ import {
   Star, Truck, ShieldCheck, Award, Zap, Activity
 } from "lucide-react";
 
-export const revalidate = 60;
+export const revalidate = 10; // Reduced from 60 to 10 for better freshness during stabilization
 
 export default async function ProductDetailsPage({
   params,

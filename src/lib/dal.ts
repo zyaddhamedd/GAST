@@ -41,8 +41,25 @@ export const getShopProducts = cache(async (params: {
   const { category, search, minPrice, maxPrice, power, voltage, inStock, page = 1, itemsPerPage = 8 } = params;
 
   const safeCategory = category ? category.trim().normalize('NFC') : 'all';
-  // Use a stable, non-encoded cache key part for the category
-  const cacheKey = `shop-${safeCategory}-s-${search || 'none'}-p-${page}-min-${minPrice || 0}-max-${maxPrice || 0}-stock-${inStock ? '1' : '0'}`;
+  const safeSearch = search ? search.trim().normalize('NFC') : 'none';
+  
+  // Normalize power and voltage to strings for the cache key
+  const safePower = Array.isArray(power) ? power.sort().join(',') : (power || 'none');
+  const safeVoltage = Array.isArray(voltage) ? voltage.sort().join(',') : (voltage || 'none');
+
+  const cacheKeyParts = [
+    'shop',
+    `cat-${safeCategory}`,
+    `s-${safeSearch}`,
+    `p-${page}`,
+    `min-${minPrice || 0}`,
+    `max-${maxPrice || 0}`,
+    `pow-${safePower}`,
+    `vol-${safeVoltage}`,
+    `stock-${inStock ? '1' : '0'}`
+  ];
+  
+  const cacheKey = cacheKeyParts.join('-');
 
   return unstable_cache(
     async () => {
@@ -112,7 +129,7 @@ export const getShopProducts = cache(async (params: {
       return { products: mappedProducts, totalCount };
     },
     [cacheKey],
-    { revalidate: 60, tags: ['products'] } // Reduced from 300 to 60 for better freshness
+    { revalidate: 60, tags: ['products'] }
   )();
 });
 
@@ -141,7 +158,7 @@ export const getProductBySlug = cache(async (slug: string) => {
       };
     },
     [safeCacheKey],
-    { revalidate: 30, tags: [safeCacheKey, 'products'] } // Reduced to 30s and added 'products' tag for collective invalidation
+    { revalidate: 30, tags: [safeCacheKey, 'products'] }
   )();
 });
 

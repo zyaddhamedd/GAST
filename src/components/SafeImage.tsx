@@ -38,21 +38,24 @@ export default function SafeImage({
   priority = false,
   ...props 
 }: Props) {
-  const [imgSrc, setImgSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
 
-  // Sync state with src prop change
-  useEffect(() => {
-    setImgSrc(src);
-  }, [src]);
+  // Reset error state if the src changes
+  const [lastSrc, setLastSrc] = useState(src);
+  if (src !== lastSrc) {
+    setHasError(false);
+    setLastSrc(src);
+  }
 
-  const isCloudinary = typeof imgSrc === 'string' && imgSrc.includes('res.cloudinary.com');
-  const isLegacyUpload = typeof imgSrc === 'string' && (imgSrc.startsWith('/uploads/') || imgSrc.startsWith('/api/media/'));
+  const currentSrc = hasError ? fallbackSrc : (src || fallbackSrc);
+  const isCloudinary = typeof currentSrc === 'string' && currentSrc.includes('res.cloudinary.com');
+  const isLegacyUpload = typeof currentSrc === 'string' && (currentSrc.startsWith('/uploads/') || currentSrc.startsWith('/api/media/'));
 
   return (
     <Image
       {...props}
       loader={isCloudinary ? cloudinaryLoader : undefined}
-      src={imgSrc || fallbackSrc}
+      src={currentSrc}
       alt={alt}
       sizes={sizes}
       priority={priority}
@@ -60,8 +63,8 @@ export default function SafeImage({
       unoptimized={isLegacyUpload || props.unoptimized}
       className={`${className} transition-opacity duration-300`}
       onError={(e) => {
-        console.error('Image load error:', imgSrc);
-        setImgSrc(fallbackSrc);
+        console.error('Image load error:', src);
+        setHasError(true);
         if (onError) onError(e);
       }}
     />

@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Plus, Trash2, ImagePlus, Upload } from 'lucide-react';
 import { normalizeImagePath } from '@/lib/utils';
 import SafeImage from '@/components/SafeImage';
 
 
 export default function CategoriesPage() {
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [categories, setCategories] = useState([]);
@@ -73,6 +75,7 @@ export default function CategoriesPage() {
         method: 'DELETE',
       });
       fetchCategories();
+      router.refresh();
     } catch (error) {
       console.error(error);
     }
@@ -105,6 +108,7 @@ export default function CategoriesPage() {
       setFormData({ name: '', slug: '', image: '' });
       setImagePreview(null);
       fetchCategories();
+      router.refresh();
      } catch (error) {
       console.error(error);
       alert('An error occurred while saving the category');
