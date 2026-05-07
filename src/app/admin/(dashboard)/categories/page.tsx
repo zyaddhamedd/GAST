@@ -12,7 +12,8 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
-  const [uploading, setUploading] = useState(false);
+   const [uploading, setUploading] = useState(false);
+  const isSubmitting = useRef(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '', slug: '', image: '' });
 
@@ -77,12 +78,14 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleAdd = async (e: React.FormEvent) => {
+   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting.current || uploading) return;
     if (!formData.image) {
       alert('Please upload a category image.');
       return;
     }
+    isSubmitting.current = true;
     try {
       const res = await fetch('/api/admin/categories', {
         method: 'POST',
@@ -102,9 +105,11 @@ export default function CategoriesPage() {
       setFormData({ name: '', slug: '', image: '' });
       setImagePreview(null);
       fetchCategories();
-    } catch (error) {
+     } catch (error) {
       console.error(error);
       alert('An error occurred while saving the category');
+    } finally {
+      isSubmitting.current = false;
     }
   };
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, X, ImagePlus, Plus, Trash2, ChevronDown } from 'lucide-react';
+import { Upload, X, ImagePlus, Trash2, ChevronDown } from 'lucide-react';
 import SafeImage from '@/components/SafeImage';
 
 
@@ -21,8 +21,9 @@ export default function AddProductPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
+   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const isSubmitting = useRef(false);
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [specs, setSpecs] = useState<SpecRow[]>([{ key: '', value: '' }]);
 
@@ -99,10 +100,12 @@ export default function AddProductPage() {
   };
 
   // ── Submit ────────────────────────────────────────────────────
-  const handleSubmit = async (e: React.FormEvent) => {
+   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting.current || uploading) return;
     if (images.length === 0) { alert('Please upload at least one image.'); return; }
 
+    isSubmitting.current = true;
     setLoading(true);
     const token = localStorage.getItem('token');
 
@@ -133,8 +136,9 @@ export default function AddProductPage() {
       router.refresh();
     } catch (error: any) {
       alert(error.message || 'Failed to save product. Please try again.');
-    } finally {
+     } finally {
       setLoading(false);
+      isSubmitting.current = false;
     }
   };
 

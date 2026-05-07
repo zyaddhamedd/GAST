@@ -35,10 +35,11 @@ export const PATCH = withAdminProtection(async (session, request, { params }) =>
 
     const dataToUpdate: any = {};
     if (name !== undefined) {
-      dataToUpdate.name = name;
-      dataToUpdate.slug = slugify(name);
+      const normalizedName = name.trim().normalize('NFC');
+      dataToUpdate.name = normalizedName;
+      dataToUpdate.slug = slugify(normalizedName);
     }
-    if (subtitle !== undefined) dataToUpdate.subtitle = subtitle;
+    if (subtitle !== undefined) dataToUpdate.subtitle = subtitle.trim().normalize('NFC');
     if (description !== undefined) dataToUpdate.description = description;
     if (price !== undefined) dataToUpdate.price = parseFloat(price);
     if (oldPrice !== undefined) dataToUpdate.oldPrice = oldPrice ? parseFloat(oldPrice) : null;
@@ -46,7 +47,7 @@ export const PATCH = withAdminProtection(async (session, request, { params }) =>
     if (inStock !== undefined) dataToUpdate.inStock = Boolean(inStock);
     if (power !== undefined) dataToUpdate.power = power ? parseFloat(power) : null;
     if (voltage !== undefined) dataToUpdate.voltage = voltage;
-    if (categoryId !== undefined) dataToUpdate.categoryId = parseInt(categoryId, 10);
+    if (categoryId !== undefined) dataToUpdate.categoryId = typeof categoryId === 'string' ? parseInt(categoryId, 10) : categoryId;
     if (specs !== undefined) dataToUpdate.specs = specs;
 
     // Handle Images update
@@ -89,8 +90,8 @@ export const PATCH = withAdminProtection(async (session, request, { params }) =>
     // @ts-ignore
     revalidateTag('products');
     // @ts-ignore
-    revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`);
-    revalidatePath(`/product/${encodeURIComponent(product.slug.normalize('NFC'))}`);
+    revalidateTag(`product-slug-${product.slug.normalize('NFC')}`);
+    revalidatePath(`/product/${product.slug.normalize('NFC')}`);
     revalidatePath('/shop');
     return NextResponse.json(product);
   } catch (error) {
@@ -135,10 +136,10 @@ export const DELETE = withAdminProtection(async (session, request, { params }) =
     // @ts-ignore
     revalidateTag('products');
     // @ts-ignore
-    revalidateTag(`product-slug-${encodeURIComponent(product.slug.normalize('NFC'))}`);
+    revalidateTag(`product-slug-${deletedProduct.slug.normalize('NFC')}`);
     // @ts-ignore
     revalidateTag('admin-stats');
-    revalidatePath(`/product/${encodeURIComponent(product.slug.normalize('NFC'))}`);
+    revalidatePath(`/product/${deletedProduct.slug.normalize('NFC')}`);
     revalidatePath('/shop');
     return NextResponse.json(deletedProduct);
   } catch (error) {

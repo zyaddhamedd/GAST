@@ -29,7 +29,7 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, secret);
     return payload as unknown as TokenPayload;
-  } catch (error) {
+  } catch {
     // Gracefully handle invalid or expired tokens
     return null;
   }

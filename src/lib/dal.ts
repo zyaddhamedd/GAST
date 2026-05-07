@@ -4,8 +4,9 @@ import { prisma } from "./prisma";
 import { normalizeImagePath } from "./utils";
 
 /**
- * Data Access Layer (DAL)
- * Optimized for performance and Arabic character consistency (NFC).
+ * Data Access Layer (DAL) — Single-Site Architecture
+ * All queries are global (no siteId filtering).
+ * Cache keys are simple and stable.
  */
 
 export const getCategories = cache(async () => {
@@ -18,7 +19,7 @@ export const getCategories = cache(async () => {
       return categories.map((cat: any) => ({
         ...cat,
         slug: cat.slug.normalize('NFC'),
-        image: normalizeImagePath(cat.image)
+        image: normalizeImagePath(cat.image),
       }));
     },
     ['all-categories'],
@@ -38,17 +39,16 @@ export const getShopProducts = cache(async (params: {
   itemsPerPage?: number;
 }) => {
   const { category, search, minPrice, maxPrice, power, voltage, inStock, page = 1, itemsPerPage = 8 } = params;
-  
-  // Create a stable cache key using ASCII-safe values
-  const safeCategory = category ? encodeURIComponent(category.normalize('NFC')) : 'all';
-  const cacheKey = `shop-p-${safeCategory}-s-${search || 'none'}-p-${page}-stock-${inStock ? '1' : '0'}`;
+
+  const safeCategory = category ? category.trim().normalize('NFC') : 'all';
+  // Use a stable, non-encoded cache key part for the category
+  const cacheKey = `shop-${safeCategory}-s-${search || 'none'}-p-${page}-min-${minPrice || 0}-max-${maxPrice || 0}-stock-${inStock ? '1' : '0'}`;
 
   return unstable_cache(
     async () => {
       const where: any = {};
 
       if (category && category !== "all") {
-        // We use NFC as the primary standard for all lookups
         where.category = { slug: category.trim().normalize('NFC') };
       }
 
@@ -112,13 +112,13 @@ export const getShopProducts = cache(async (params: {
       return { products: mappedProducts, totalCount };
     },
     [cacheKey],
-    { revalidate: 300, tags: ['products'] }
+    { revalidate: 60, tags: ['products'] } // Reduced from 300 to 60 for better freshness
   )();
 });
 
 export const getProductBySlug = cache(async (slug: string) => {
   const normalizedSlug = decodeURIComponent(slug).trim().normalize('NFC');
-  const safeCacheKey = `product-slug-${encodeURIComponent(normalizedSlug)}`;
+  const safeCacheKey = `product-slug-${normalizedSlug}`; // Stable key without extra encoding if possible
 
   return unstable_cache(
     async () => {
@@ -137,11 +137,11 @@ export const getProductBySlug = cache(async (slug: string) => {
         rating: (product.id % 2 === 0) ? 5 : 4.5,
         image: product.images?.[0]?.url ? normalizeImagePath(product.images[0].url) : "/placeholder.webp",
         images: product.images.map((img: any) => normalizeImagePath(img.url)),
-        categoryName: product.category?.name
+        categoryName: product.category?.name,
       };
     },
     [safeCacheKey],
-    { revalidate: 60, tags: [safeCacheKey] }
+    { revalidate: 30, tags: [safeCacheKey, 'products'] } // Reduced to 30s and added 'products' tag for collective invalidation
   )();
 });
 
@@ -162,7 +162,7 @@ export const getProductById = cache(async (id: number) => {
         ...product,
         rating: (product.id % 2 === 0) ? 5 : 4.5,
         image: product.images?.[0]?.url ? normalizeImagePath(product.images[0].url) : "/placeholder.webp",
-        images: product.images.map((img: any) => normalizeImagePath(img.url))
+        images: product.images.map((img: any) => normalizeImagePath(img.url)),
       };
     },
     [`product-id-${id}`],

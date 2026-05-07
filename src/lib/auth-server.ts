@@ -27,7 +27,7 @@ export async function getAuthSession(): Promise<AuthSession | null> {
       userId: payload.userId,
       role: payload.role,
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }

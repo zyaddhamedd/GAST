@@ -6,27 +6,12 @@ datasource db {
   provider = "postgresql"
 }
 
-model Site {
-  id         Int        @id @default(autoincrement())
-  name       String     @unique
-  domain     String?    @unique
-  slug       String     @unique
-  createdAt  DateTime   @default(now())
-  categories Category[]
-  messages   Message[]
-  orders     Order[]
-  products   Product[]
-  users      User[]
-}
-
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
   role      String   @default("ADMIN")
   createdAt DateTime @default(now())
-  siteId    Int?
-  site      Site?    @relation(fields: [siteId], references: [id])
 }
 
 model Category {
@@ -35,12 +20,9 @@ model Category {
   slug      String    @unique
   image     String
   createdAt DateTime  @default(now())
-  siteId    Int
-  site      Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
   products  Product[]
 
   @@index([slug])
-  @@index([siteId, slug])
 }
 
 model ProductImage {
@@ -64,13 +46,11 @@ model Product {
   power       Float?
   voltage     String?
   specs       Json?
-  siteId      Int
   categoryId  Int
   createdAt   DateTime       @default(now())
   slug        String         @unique
   orderItems  OrderItem[]
   category    Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  site        Site           @relation(fields: [siteId], references: [id], onDelete: Cascade)
   images      ProductImage[]
 
   @@index([categoryId])
@@ -78,43 +58,23 @@ model Product {
   @@index([power])
   @@index([voltage])
   @@index([createdAt(sort: Desc)])
-  @@index([siteId, categoryId, createdAt(sort: Desc)])
-  @@index([siteId, price, createdAt(sort: Desc)])
-  @@index([siteId, createdAt(sort: Desc)])
-}
-
-enum PaymentMethod {
-  COD
-  INSTAPAY
-}
-
-enum OrderStatus {
-  PENDING
-  PENDING_VERIFICATION
-  CONFIRMED
-  SHIPPED
-  DELIVERED
-  REJECTED
 }
 
 model Order {
-  id           Int         @id @default(autoincrement())
-  customerName String
-  phone        String
-  email        String?
-  address      String
-  total        Float
-  status       OrderStatus @default(PENDING)
-  paymentMethod PaymentMethod @default(COD)
+  id                Int           @id @default(autoincrement())
+  customerName      String
+  phone             String
+  email             String?
+  address           String
+  total             Float
+  status            OrderStatus   @default(PENDING)
+  createdAt         DateTime      @default(now())
+  paymentMethod     PaymentMethod @default(COD)
   paymentProofImage String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  siteId       Int
-  site         Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  items        OrderItem[]
+  updatedAt         DateTime      @updatedAt
+  items             OrderItem[]
 
   @@index([status])
-  @@index([siteId])
 }
 
 model OrderItem {
@@ -138,9 +98,20 @@ model Message {
   message    String
   readStatus Boolean  @default(false)
   createdAt  DateTime @default(now())
-  siteId     Int
-  site       Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@index([readStatus])
-  @@index([siteId])
+}
+
+enum PaymentMethod {
+  COD
+  INSTAPAY
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  PENDING_VERIFICATION
+  REJECTED
 }

@@ -22,6 +22,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://gast-water.com"),
   title: "GAST - Holmen | مضخات مياه بتكنولوجيا إيطالية",
   description: "اكتشف مجموعة مضخات هولمن (HOLMEN) بتكنولوجيا إيطالية أصلية. حلول ضخ مياه متكاملة للمنازل والمزارع والمشاريع الصناعية بضمان 5 سنوات.",
   keywords: ["مضخات مياه", "هولمن", "مضخات إيطالية", "GAST", "طلمبات مياه", "مواتير مياه"],

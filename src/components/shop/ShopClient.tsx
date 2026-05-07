@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import SafeImage from "@/components/SafeImage";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ProductCard } from "@/components/ProductCard";
